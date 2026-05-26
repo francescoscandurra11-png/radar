@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Francesco / Radar — Meteo mondiale</title>
+  <title>Francesco — Radar meteo | Santa Teresa di Riva</title>
   <style>
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #020617; color: #f1f5f9; }
@@ -89,16 +89,21 @@
         </div>
 
         <div class="note">
-          Radar live da RainViewer + Open-Meteo. Cerca qualsiasi città, zoom sul mondo,
-          layer pioggia, nuvole, temperatura, vento e fulmini.
+          Nota: il radar online usa dati live da internet (RainViewer + Open-Meteo).
+          Se vuoi usarlo senza internet, usa l’app offline Pygame:
+          <div style="margin-top:8px">
+            <div><code>python aggiorna_cache_meteo.py</code> (quando hai internet)</div>
+            <div style="margin-top:4px"><code>python santa_teresa_offline.py</code> (poi offline)</div>
+          </div>
         </div>
       </div>
 
       <div class="footer">
-        <div>Sito live</div>
+        <div>Pubblico su GitHub Pages</div>
         <div><a href="https://francescoscandurra11-png.github.io/radar/" style="color:#93c5fd">francescoscandurra11-png.github.io/radar</a></div>
       </div>
     </div>
   </div>
 </body>
 </html>
+

@@ -1,27 +1,25 @@
-# Francesco / Radar — meteo mondiale
+# radar — Francesco / Radar meteo mondiale
 
-Radar meteo interattivo con dati live ([RainViewer](https://www.rainviewer.com/)) e previsioni ([Open-Meteo](https://open-meteo.com/)).
+A weather radar for fun — interactive map with live precipitation worldwide.
 
-## Sito online
+**Live site:** https://francescoscandurra11-png.github.io/radar/
 
-**https://francescoscandurra11-png.github.io/radar/**
+## Features
 
-## Funzioni
+- Global rain radar animation (RainViewer)
+- Clouds / satellite infrared
+- Temperature, wind, lightning for the visible map area
+- Search any city in the world
+- Shortcuts: World, Europe, Italy, Santa Teresa di Riva
 
-- Radar pioggia mondiale (animazione)
-- Satellite / nuvole
-- Temperature, vento, fulmini (area visibile sulla mappa)
-- Ricerca città nel mondo
-- Scorciatoie: Mondo, Europa, Italia, Santa Teresa di Riva
+## Files
 
-## File principali
-
-| File | Descrizione |
+| File | Description |
 |------|-------------|
-| `index.html` | Pagina iniziale |
-| `santa_teresa_radar.html` | App radar completa |
-| `mappa_santateresa.png` | Mappa locale (opzionale) |
+| `index.html` | Home page |
+| `santa_teresa_radar.html` | Full radar app |
+| `mappa_santateresa.png` | Local map overlay (optional) |
 
-## Licenza
+## License
 
 GPL-3.0
