@@ -1,55 +1,33 @@
-#!/usr/bin/env python3
-"""Avvia il sito radar locale e apre il browser."""
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-import http.server
-import os
-import socket
-import sys
-import threading
-import webbrowser
-from pathlib import Path
+    <title>Radar of Everythinck</title>
 
-ROOT = Path(__file__).resolve().parent
-PORT = 8765
+    <link rel="manifest" href="/radar/manifest.json">
+    <meta name="theme-color" content="#00bfff">
+    <link rel="icon" href="/radar/icons/icon-192.png" type="image/png">
+</head>
 
+<body style="margin:0; background:#000; color:white; font-family:Arial;">
 
-def free_port(start: int) -> int:
-    for p in (start, start + 1, start + 2):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(("127.0.0.1", p))
-                return p
-            except OSError:
-                continue
-    return start
+    <h1 style="text-align:center; margin-top:20px;">Radar of Everythinck</h1>
 
+    <iframe src="https://www.rainviewer.com/map.html"
+            style="width:100%; height:80vh; border:none;">
+    </iframe>
 
-def main() -> None:
-    os.chdir(ROOT)
-    port = free_port(PORT)
-    url = f"http://127.0.0.1:{port}/"
+    <footer style="text-align:center; color:#aaa; font-size:12px; margin-top:10px;">
+        © 2026 Francesco
+    </footer>
 
-    handler = http.server.SimpleHTTPRequestHandler
-    server = http.server.HTTPServer(("127.0.0.1", port), handler)
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/radar/service-worker.js");
+        }
+    </script>
 
-    print("=" * 50)
-    print("  Sito radar — Santa Teresa di Riva")
-    print("=" * 50)
-    print(f"  {url}")
-    print("  Chiudi con Ctrl+C (non chiudere prima!)")
-    print()
-
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    webbrowser.open(url)
-
-    try:
-        while True:
-            threading.Event().wait(3600)
-    except KeyboardInterrupt:
-        print("\nServer fermato.")
-    finally:
-        server.shutdown()
-
-
-if __name__ == "__main__":
-    main()
+</body>
+</html>
