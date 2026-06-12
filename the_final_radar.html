@@ -2,7 +2,11 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="T.F.R" />
   <meta name="description" content="The Final Radar (T.F.R) - App meteo professional con radar mondiale, previsioni e mappe interattive. Santa Teresa di Riva." />
   <meta name="theme-color" content="#0f172a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -29,9 +33,21 @@
       --text: #f1f5f9;
       --muted: #94a3b8;
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; height: 100%; font-family: "Segoe UI", system-ui, sans-serif; background: #020617; color: var(--text); }
-    body { overscroll-behavior: none; }
+    body {
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    /* Re-enable text selection for inputs and text areas */
+    input, textarea, [contenteditable] {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
+    }
     /* Mobile viewport stability: prevent 100vh jump on address bar */
     :root { --app-h: 100dvh; }
     @supports not (height: 100dvh) { :root { --app-h: calc(var(--vh, 1vh) * 100); } }
@@ -62,7 +78,15 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
+      touch-action: manipulation;
+    }
+    .nav button:active {
+      transform: scale(0.98);
+    }
+    @media (hover: none) {
+      .nav button:hover { background: var(--panel2); }
+      .nav button:active { background: rgba(29, 78, 216, 0.3); }
     }
     .nav button:hover { background: var(--panel2); }
     .nav button.active { background: #1d4ed8; }
@@ -183,10 +207,17 @@
       color: var(--text);
       cursor: pointer;
       font-size: 18px;
-      transition: all 0.2s;
+      transition: all 0.2s, transform 0.1s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
     }
     .ctrl-btns button:hover { background: #334155; border-color: var(--accent); }
+    .ctrl-btns button:active { transform: scale(0.95); }
     .ctrl-btns button.active-play { background: #1d4ed8; border-color: #3b82f6; }
+    @media (hover: none) {
+      .ctrl-btns button:hover { background: var(--panel2); }
+      .ctrl-btns button:active { background: rgba(29, 78, 216, 0.5); }
+    }
     #slider-wrap { flex: 1; display: flex; align-items: center; gap: 12px; }
     #time-slider { flex: 1; accent-color: #3b82f6; cursor: pointer; }
     #opacity-slider { width: 130px; accent-color: #3b82f6; }
@@ -203,8 +234,8 @@
     
     /* Mobile responsive */
     @media (max-width: 768px) {
-      :root { 
-        --sidebar-w: 60px; 
+      :root {
+        --sidebar-w: 60px;
         --bottom-h: 100px;
       }
       .brand h1, .brand p, .nav button span.txt, .sidebar-foot { display: none; }
@@ -221,6 +252,79 @@
       #time-row { flex-wrap: wrap; gap: 10px; }
       #timestamp { min-width: 180px; font-size: 14px; }
       .ctrl-btns button { width: 36px; height: 36px; font-size: 16px; }
+
+      /* iPhone X e superiori - Safe Areas */
+      @supports (padding: max(0px)) {
+        #bottom {
+          padding-left: max(10px, env(safe-area-inset-left));
+          padding-right: max(10px, env(safe-area-inset-right));
+          padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+        #hud {
+          left: max(10px, env(safe-area-inset-left));
+        }
+        #map-tools {
+          right: max(10px, env(safe-area-inset-right));
+        }
+      }
+    }
+
+    /* Medium mobile - iPhone 8, Pixel 2, etc */
+    @media (max-width: 667px) {
+      :root {
+        --sidebar-w: 56px;
+        --bottom-h: 105px;
+      }
+      .nav button { padding: 13px 9px; }
+      .nav .icon { font-size: 19px; }
+      #timestamp { min-width: 160px; font-size: 13px; }
+      .ctrl-btns button { width: 34px; height: 34px; font-size: 15px; }
+    }
+
+    /* Small mobile - iPhone SE, Pixel, etc */
+    @media (max-width: 480px) {
+      :root {
+        --sidebar-w: 52px;
+        --bottom-h: 110px;
+      }
+      .nav button { padding: 12px 8px; }
+      .nav .icon { font-size: 18px; }
+      #time-row { gap: 8px; }
+      #timestamp { min-width: 150px; font-size: 13px; }
+      .ctrl-btns button { width: 32px; height: 32px; font-size: 14px; }
+      #slider-wrap { gap: 8px; }
+    }
+
+    /* Very small mobile - iPhone 4/5, old Android */
+    @media (max-width: 375px) {
+      :root {
+        --sidebar-w: 48px;
+        --bottom-h: 120px;
+      }
+      .nav button { padding: 10px 6px; }
+      .nav .icon { font-size: 16px; }
+      #timestamp { min-width: 130px; font-size: 12px; }
+      .ctrl-btns button { width: 30px; height: 30px; font-size: 13px; }
+      #slider-wrap { gap: 6px; }
+      #map-tools select, #map-tools button { padding: 5px 8px; font-size: 10px; }
+    }
+
+    /* Large mobile - iPhone 14 Pro Max, Pixel 7 Pro, etc */
+    @media (min-width: 414px) and (max-width: 768px) {
+      :root {
+        --sidebar-w: 64px;
+        --bottom-h: 95px;
+      }
+      .nav button { padding: 15px 11px; }
+      .nav .icon { font-size: 21px; }
+      #timestamp { min-width: 190px; font-size: 15px; }
+      .ctrl-btns button { width: 38px; height: 38px; font-size: 17px; }
+    }
+
+    /* Dynamic viewport handling */
+    @media (max-height: 600px) {
+      :root { --bottom-h: 85px; }
+      #bottom { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
     }
     
     /* Small mobile */
@@ -242,6 +346,29 @@
       :root { --bottom-h: 70px; }
       #bottom { padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
       .status { display: none; }
+    }
+
+    /* Gesture handling and touch optimization */
+    @media (hover: none) and (pointer: coarse) {
+      * { -webkit-tap-highlight-color: transparent; }
+      button, .nav button, .ctrl-btns button { -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1); }
+      .nav button:active, .ctrl-btns button:active { transform: scale(0.95); }
+    }
+
+    /* High DPI screens */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .leaflet-container { -webkit-font-smoothing: antialiased; }
+    }
+
+    /* Full screen mobile PWA */
+    @media (display-mode: standalone) {
+      :root { --app-h: 100dvh; }
+      body { padding-top: env(safe-area-inset-top); }
+    }
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
     }
   </style>
 </head>
@@ -964,19 +1091,133 @@
     }
 
     function updateViewportHeight() {
-      // Fix mobile address-bar jump (Safari/Chrome)
-      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+      // Fix mobile address-bar jump (Safari/Chrome) with dynamic viewport
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+      document.documentElement.style.setProperty("--app-h", `${window.innerHeight}px`);
+
+      // Dynamic sidebar width based on screen size
+      const screenWidth = window.innerWidth;
+      if (screenWidth <= 375) {
+        document.documentElement.style.setProperty("--sidebar-w", "48px");
+      } else if (screenWidth <= 414) {
+        document.documentElement.style.setProperty("--sidebar-w", "52px");
+      } else if (screenWidth <= 480) {
+        document.documentElement.style.setProperty("--sidebar-w", "56px");
+      } else if (screenWidth <= 768) {
+        document.documentElement.style.setProperty("--sidebar-w", "60px");
+      } else {
+        document.documentElement.style.setProperty("--sidebar-w", "240px");
+      }
+
+      // Dynamic bottom height based on screen height
+      const screenHeight = window.innerHeight;
+      if (screenHeight <= 500) {
+        document.documentElement.style.setProperty("--bottom-h", "70px");
+      } else if (screenHeight <= 600) {
+        document.documentElement.style.setProperty("--bottom-h", "85px");
+      } else if (screenHeight <= 700) {
+        document.documentElement.style.setProperty("--bottom-h", "100px");
+      } else {
+        document.documentElement.style.setProperty("--bottom-h", "95px");
+      }
+
       // Ensure Leaflet recalculates map size after viewport changes
       if (map) map.invalidateSize({ animate: false });
     }
 
-    // Run early and on all viewport changes
-    updateViewportHeight();
-    window.addEventListener("resize", updateViewportHeight, { passive: true });
-    window.addEventListener("orientationchange", () => setTimeout(updateViewportHeight, 250), { passive: true });
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", updateViewportHeight, { passive: true });
+    // Enhanced viewport handling for mobile
+    function setupMobileViewport() {
+      // Initial setup
+      updateViewportHeight();
+
+      // Handle resize with debouncing
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateViewportHeight, 100);
+      }, { passive: true });
+
+      // Handle orientation change with delay
+      window.addEventListener("orientationchange", () => {
+        setTimeout(updateViewportHeight, 300);
+      }, { passive: true });
+
+      // Handle visual viewport changes (mobile keyboards, etc)
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+          requestAnimationFrame(updateViewportHeight);
+        }, { passive: true });
+      }
+
+      // Handle dynamic toolbar changes (Chrome mobile)
+      if (window.navigator.userAgent.includes("Chrome")) {
+        window.addEventListener("scroll", () => {
+          requestAnimationFrame(updateViewportHeight);
+        }, { passive: true });
+      }
+
+      // Handle safe area insets changes (iOS)
+      if ("getComputedStyle" in window) {
+        const checkSafeArea = () => {
+          const computed = getComputedStyle(document.documentElement);
+          const safeTop = computed.getPropertyValue("env(safe-area-inset-top)");
+          if (safeTop && safeTop !== "0px") {
+            document.body.style.paddingTop = "env(safe-area-inset-top)";
+          }
+        };
+        checkSafeArea();
+        window.addEventListener("resize", checkSafeArea, { passive: true });
+      }
     }
+
+    // Run enhanced mobile viewport setup
+    setupMobileViewport();
+
+    // Dynamic screen size adjustment for mobile
+    function adjustForScreenSize() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      // Adjust font sizes based on screen size
+      const baseFontSize = Math.min(Math.max(width / 25, 14), 18);
+      document.documentElement.style.fontSize = `${baseFontSize}px`;
+
+      // Adjust map controls based on screen size
+      if (map && width <= 480) {
+        map.removeControl(map.zoomControl);
+        // Add simplified zoom control
+        L.control.zoom({
+          position: 'topright',
+          zoomInText: '+',
+          zoomOutText: '-'
+        }).addTo(map);
+      }
+
+      // Adjust chip visibility based on screen size
+      const forecastChip = document.getElementById('forecast-chip');
+      if (forecastChip) {
+        if (width <= 375) {
+          forecastChip.style.display = 'none';
+        } else if (width <= 480) {
+          forecastChip.style.fontSize = '11px';
+        }
+      }
+    }
+
+    // Run on load and on resize
+    adjustForScreenSize();
+    window.addEventListener('resize', adjustForScreenSize, { passive: true });
+
+    // Prevent zoom on double tap for mobile
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
 
     boot();
   </script>
