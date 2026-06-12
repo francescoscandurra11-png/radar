@@ -3,13 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="The Final Radar (T.F.R) - App meteo professional con radar mondiale, previsioni e mappe interattive. Santa Teresa di Riva." />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>The Final Radar (T.F.R) — Santa Teresa</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrato'))
+        .catch(err => console.log('Service Worker non registrato:', err));
+    }
+  </script>
   <style>
     :root {
-      --sidebar-w: 220px;
-      --bottom-h: 88px;
+      --sidebar-w: 240px;
+      --bottom-h: 95px;
       --accent: #e53935;
       --panel: #0f172a;
       --panel2: #1e293b;
@@ -31,114 +44,121 @@
       flex-direction: column;
       overflow: hidden;
     }
-    .brand { padding: 16px 14px 10px; border-bottom: 1px solid #334155; }
-    .brand h1 { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; }
+    .brand { padding: 18px 16px 12px; border-bottom: 1px solid #334155; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+    .brand h1 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--accent); }
     .brand p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
-    .nav { flex: 1; overflow-y: auto; padding: 8px; }
+    .nav { flex: 1; overflow-y: auto; padding: 10px; }
     .nav button {
       width: 100%;
       text-align: left;
       border: none;
       background: transparent;
       color: var(--text);
-      padding: 11px 12px;
-      margin-bottom: 4px;
-      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 5px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      transition: background 0.2s;
     }
     .nav button:hover { background: var(--panel2); }
     .nav button.active { background: #1d4ed8; }
-    .nav .icon { width: 22px; text-align: center; opacity: 0.9; }
-    .sidebar-foot { padding: 10px 12px; font-size: 11px; color: var(--muted); border-top: 1px solid #334155; }
-    .quick-places { padding: 8px 8px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+    .nav .icon { width: 24px; text-align: center; opacity: 0.9; font-size: 18px; }
+    .sidebar-foot { padding: 12px 14px; font-size: 11px; color: var(--muted); border-top: 1px solid #334155; background: var(--panel2); }
+    .quick-places { padding: 10px 10px 0; display: flex; flex-wrap: wrap; gap: 8px; }
     .quick-places button {
       flex: 1 1 45%;
-      min-width: 80px;
-      padding: 7px 8px;
-      font-size: 11px;
-      border-radius: 8px;
+      min-width: 85px;
+      padding: 10px 12px;
+      font-size: 12px;
+      border-radius: 10px;
       border: 1px solid #475569;
       background: var(--panel2);
       color: var(--text);
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .quick-places button:hover { background: #334155; }
+    .quick-places button:hover { background: #334155; border-color: var(--accent); }
     #search-box {
-      margin: 8px;
-      padding: 8px 10px;
-      width: calc(100% - 16px);
-      border-radius: 8px;
+      margin: 10px;
+      padding: 12px 14px;
+      width: calc(100% - 20px);
+      border-radius: 10px;
       border: 1px solid #475569;
       background: #0f172a;
       color: var(--text);
-      font-size: 13px;
+      font-size: 14px;
     }
-    .leaflet-control-geocoder { border-radius: 8px; }
+    #search-box:focus { outline: none; border-color: var(--accent); }
+    .leaflet-control-geocoder { border-radius: 10px; }
     #map-wrap { position: relative; min-height: 0; }
     #map { width: 100%; height: 100%; touch-action: pan-x pan-y; }
     #hud {
       position: absolute;
-      top: 12px;
-      left: 12px;
+      top: 15px;
+      left: 15px;
       z-index: 800;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       pointer-events: none;
     }
     .chip {
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.9);
       border: 1px solid #475569;
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 13px;
-      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      backdrop-filter: blur(8px);
       pointer-events: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .chip strong { color: var(--accent); }
     #map-tools {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 15px;
+      right: 15px;
       z-index: 800;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
     #map-tools label, #map-tools select, #map-tools button {
       pointer-events: auto;
-      font-size: 12px;
+      font-size: 13px;
     }
     #map-tools select, #map-tools button {
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.95);
       color: var(--text);
       border: 1px solid #475569;
-      border-radius: 8px;
-      padding: 6px 10px;
+      border-radius: 10px;
+      padding: 8px 12px;
       cursor: pointer;
+      transition: all 0.2s;
     }
+    #map-tools select:hover, #map-tools button:hover { border-color: var(--accent); }
     #legend {
       position: absolute;
-      bottom: 100px;
-      right: 12px;
+      bottom: 110px;
+      right: 15px;
       z-index: 800;
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.95);
       border: 1px solid #475569;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 11px;
-      min-width: 140px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12px;
+      min-width: 150px;
       display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     #legend.visible { display: block; }
     #legend .bar {
-      height: 12px;
-      border-radius: 4px;
-      margin: 6px 0;
+      height: 14px;
+      border-radius: 6px;
+      margin: 8px 0;
       background: linear-gradient(90deg,
         #88ccee 0%, #44aadd 15%, #0088cc 30%, #ffff00 45%,
         #ffaa00 60%, #ff6600 75%, #ff0000 90%, #cc00cc 100%);
@@ -147,34 +167,81 @@
       grid-column: 2;
       background: var(--panel);
       border-top: 1px solid #334155;
-      padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px));
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
-    #time-row { display: flex; align-items: center; gap: 12px; }
-    #timestamp { min-width: 200px; font-size: 15px; font-weight: 600; color: var(--accent); }
-    .ctrl-btns { display: flex; gap: 6px; }
+    #time-row { display: flex; align-items: center; gap: 14px; }
+    #timestamp { min-width: 220px; font-size: 16px; font-weight: 600; color: var(--accent); }
+    .ctrl-btns { display: flex; gap: 8px; }
     .ctrl-btns button {
-      width: 36px; height: 36px;
+      width: 40px; height: 40px;
       border: 1px solid #475569;
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--panel2);
       color: var(--text);
       cursor: pointer;
-      font-size: 16px;
+      font-size: 18px;
+      transition: all 0.2s;
     }
-    .ctrl-btns button:hover { background: #334155; }
-    .ctrl-btns button.active-play { background: #1d4ed8; }
-    #slider-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+    .ctrl-btns button:hover { background: #334155; border-color: var(--accent); }
+    .ctrl-btns button.active-play { background: #1d4ed8; border-color: #3b82f6; }
+    #slider-wrap { flex: 1; display: flex; align-items: center; gap: 12px; }
     #time-slider { flex: 1; accent-color: #3b82f6; cursor: pointer; }
-    #opacity-slider { width: 120px; accent-color: #3b82f6; }
-    .status { font-size: 11px; color: var(--muted); }
-    .leaflet-control-layers { font-size: 12px; }
+    #opacity-slider { width: 130px; accent-color: #3b82f6; }
+    .status { font-size: 12px; color: var(--muted); }
+    .leaflet-control-layers { font-size: 13px; }
+    
+    /* Tablet responsive */
+    @media (max-width: 1024px) {
+      :root { --sidebar-w: 200px; }
+      .brand h1 { font-size: 14px; }
+      .nav button { padding: 10px 12px; font-size: 13px; }
+      .quick-places button { min-width: 75px; font-size: 11px; }
+    }
+    
+    /* Mobile responsive */
     @media (max-width: 768px) {
-      :root { --sidebar-w: 56px; }
+      :root { 
+        --sidebar-w: 60px; 
+        --bottom-h: 100px;
+      }
       .brand h1, .brand p, .nav button span.txt, .sidebar-foot { display: none; }
-      .nav button { justify-content: center; padding: 12px 8px; }
+      .nav button { justify-content: center; padding: 14px 10px; }
+      .nav .icon { font-size: 20px; }
+      .quick-places { display: none; }
+      #search-box { display: none; }
+      #hud { top: 10px; left: 10px; gap: 8px; }
+      .chip { padding: 8px 12px; font-size: 12px; }
+      #map-tools { top: 10px; right: 10px; gap: 6px; }
+      #map-tools select, #map-tools button { padding: 6px 10px; font-size: 11px; }
+      #legend { bottom: 115px; right: 10px; padding: 10px 12px; font-size: 11px; min-width: 130px; }
+      #bottom { padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); }
+      #time-row { flex-wrap: wrap; gap: 10px; }
+      #timestamp { min-width: 180px; font-size: 14px; }
+      .ctrl-btns button { width: 36px; height: 36px; font-size: 16px; }
+    }
+    
+    /* Small mobile */
+    @media (max-width: 480px) {
+      :root { 
+        --sidebar-w: 52px; 
+        --bottom-h: 110px;
+      }
+      .nav button { padding: 12px 8px; }
+      .nav .icon { font-size: 18px; }
+      #time-row { gap: 8px; }
+      #timestamp { min-width: 150px; font-size: 13px; }
+      .ctrl-btns button { width: 32px; height: 32px; font-size: 14px; }
+      #slider-wrap { gap: 8px; }
+    }
+    
+    /* Landscape mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      :root { --bottom-h: 70px; }
+      #bottom { padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+      .status { display: none; }
     }
   </style>
 </head>
@@ -202,7 +269,8 @@
       </nav>
       <div class="sidebar-foot">
         Dati radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:#93c5fd">RainViewer</a><br>
-        Previsioni: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:#93c5fd">Open-Meteo</a>
+        Previsioni: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:#93c5fd">Open-Meteo</a><br>
+        Mappe: <a href="https://github.com/francescoscandurra11-png/radar" target="_blank" rel="noopener" style="color:#93c5fd">GitHub</a>
       </div>
     </aside>
 
@@ -734,6 +802,10 @@
       baseLayers.satellite = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         { attribution: "© Esri", maxZoom: 18 }
+      );
+      baseLayers.google = L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        { attribution: "© Google Maps", maxZoom: 20 }
       );
       const mapImg = "mappa_santateresa.png";
       localOverlay = L.imageOverlay(mapImg, LOCAL_BOUNDS, { opacity: 1 });

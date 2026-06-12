@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generatore Icone T.F.R</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .icon-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        canvas { border: 1px solid #ddd; margin: 10px 0; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1d4ed8; }
+        h1 { color: #0f172a; }
+        h2 { color: #1d4ed8; }
+        .instructions { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Generatore Icone - The Final Radar (T.F.R)</h1>
+    
+    <div class="instructions">
+        <h3>Istruzioni:</h3>
+        <ol>
+            <li>Clicca sui bottoni "Scarica" per salvare ogni icona nella dimensione richiesta</li>
+            <li>Salva tutte le icone nella cartella del progetto radar</li>
+            <li>Le icone maskable sono per Android (icone adattive)</li>
+        </ol>
+    </div>
+    
+    <div class="container">
+        <div class="icon-box">
+            <h2>Icone Standard</h2>
+            <div id="standard-icons"></div>
+        </div>
+        
+        <div class="icon-box">
+            <h2>Icone Maskable (Android)</h2>
+            <div id="maskable-icons"></div>
+        </div>
+    </div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const maskableSizes = [192, 512];
+        
+        function createIcon(size, maskable = false) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#3b82f6');
+            gradient.addColorStop(0.5, '#1d4ed8');
+            gradient.addColorStop(1, '#0f172a');
+            
+            if (maskable) {
+                // For maskable, fill entire canvas
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+            } else {
+                // Rounded corners for standard icons
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.roundRect(0, 0, size, size, size * 0.15);
+                ctx.fill();
+            }
+            
+            // Radar circles
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = size * 0.008;
+            for (let r = 0.4; r <= 0.8; r += 0.1) {
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size * r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Radar sweep
+            ctx.save();
+            ctx.translate(size/2, size/2);
+            const glowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.4);
+            glowGradient.addColorStop(0, 'rgba(229, 57, 53, 1)');
+            glowGradient.addColorStop(0.7, 'rgba(29, 78, 216, 0.5)');
+            glowGradient.addColorStop(1, 'rgba(15, 23, 42, 0)');
+            
+            ctx.fillStyle = glowGradient;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, size * 0.4, -Math.PI/2, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.rotate(-Math.PI/4);
+            ctx.strokeStyle = '#e53935';
+            ctx.lineWidth = size * 0.012;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size * 0.4, -size * 0.4);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Center point
+            ctx.fillStyle = '#e53935';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.04, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = size * 0.008;
+            ctx.stroke();
+            
+            // T.F.R text
+            if (size >= 128) {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size * 0.07}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('T.F.R', size/2, size * 0.93);
+            }
+            
+            return canvas;
+        }
+        
+        function downloadIcon(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Generate standard icons
+        const standardContainer = document.getElementById('standard-icons');
+        sizes.forEach(size => {
+            const div = document.createElement('div');
+            div.style.marginBottom = '15px';
+            
+            const canvas = createIcon(size, false);
+            canvas.style.display = 'block';
+            
+            const button = document.createElement('button');
+            button.textContent = `Scarica ${size}x${size}`;
+            button.onclick = () => downloadIcon(canvas, `icon-${size}.png`);
+            
+            div.appendChild(canvas);
+            div.appendChild(button);
+            standardContainer.appendChild(div);
+        });
+        
+        // Generate maskable icons
+        const maskableContainer = document.getElementById('maskable-icons');
+        maskableSizes.forEach(size => {
+            const div = document.createElement('div');
+            div.style.marginBottom = '15px';
+            
+            const canvas = createIcon(size, true);
+            canvas.style.display = 'block';
+            
+            const button = document.createElement('button');
+            button.textContent = `Scarica maskable ${size}x${size}`;
+            button.onclick = () => downloadIcon(canvas, `icon-maskable-${size}.png`);
+            
+            div.appendChild(canvas);
+            div.appendChild(button);
+            maskableContainer.appendChild(div);
+        });
+    </script>
+</body>
+</html>

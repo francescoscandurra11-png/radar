@@ -1,0 +1,36 @@
+{
+  "name": "the-final-radar",
+  "version": "1.0.0",
+  "description": "The Final Radar (T.F.R) - App meteo professional con radar mondiale",
+  "main": "the_final_radar.html",
+  "scripts": {
+    "install-capacitor": "npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios",
+    "capacitor-init": "npx cap init",
+    "capacitor-sync": "npx cap sync",
+    "capacitor-build-android": "npx cap build android",
+    "capacitor-build-ios": "npx cap build ios",
+    "capacitor-open-android": "npx cap open android",
+    "capacitor-open-ios": "npx cap open ios",
+    "serve": "python -m http.server 8080"
+  },
+  "keywords": [
+    "weather",
+    "radar",
+    "pwa",
+    "meteorology",
+    "maps"
+  ],
+  "author": "Francesco Scandurra",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/cli": "^5.0.0",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/android": "^5.0.0",
+    "@capacitor/ios": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/francescoscandurra11-png/radar.git"
+  },
+  "homepage": "https://github.com/francescoscandurra11-png/radar"
+}

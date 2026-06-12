@@ -1,24 +1,93 @@
 {
-  "name": "Radar of Everything",
-  "short_name": "Radar Everything",
-  "description": "The radar of everything",
-  "lang": "en",
-  "start_url": "/radar/",
-  "scope": "/radar/",
+  "name": "The Final Radar (T.F.R)",
+  "short_name": "T.F.R",
+  "description": "App meteo professional con radar mondiale, previsioni e mappe interattive. Santa Teresa di Riva.",
+  "start_url": "./the_final_radar.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#00bfff",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "scope": "./",
   "icons": [
     {
-      "src": "/radar/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/radar/icons/icon-512.png",
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["weather", "utilities", "maps"],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Radar Mondo",
+      "short_name": "Mondo",
+      "description": "Vai al radar mondiale",
+      "url": "./the_final_radar.html?view=world",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Santa Teresa",
+      "short_name": "Santa Teresa",
+      "description": "Vai a Santa Teresa di Riva",
+      "url": "./the_final_radar.html?view=santateresa",
+      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
     }
   ]
 }
