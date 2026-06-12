@@ -10,61 +10,13 @@
   "scope": "./",
   "icons": [
     {
-      "src": "icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
+      "src": "Copilot_20260526_201904.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icon-maskable-512.png",
+      "src": "Copilot_20260526_201904.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -80,14 +32,14 @@
       "short_name": "Mondo",
       "description": "Vai al radar mondiale",
       "url": "./the_final_radar.html?view=world",
-      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "Copilot_20260526_201904.png", "sizes": "512x512" }]
     },
     {
       "name": "Santa Teresa",
       "short_name": "Santa Teresa",
       "description": "Vai a Santa Teresa di Riva",
       "url": "./the_final_radar.html?view=santateresa",
-      "icons": [{ "src": "icon-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "Copilot_20260526_201904.png", "sizes": "512x512" }]
     }
   ]
 }
