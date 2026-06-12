@@ -32,7 +32,19 @@
 - **App installabile** su Android, iOS, Desktop
 - **Tua icona**: Copilot_20260526_201904.png
 - **Funziona offline**
-- **Condividi il link con chi vuoi**
+- **Condividi il link con chi vuoi
+- **🚀 SUPER RESPONSIVE**: Si adatta automaticamente a QUALSIASI schermo!
+
+## 📱 NUOVI MIGLIORAMENTI MOBILE:
+
+✅ **Dynamic viewport**: Si adatta in tempo reale alla grandezza schermo
+✅ **Safe areas iPhone X**: Gestisce notches e rounded corners
+✅ **Gesture handling**: Ottimizzato per touch e swipe
+✅ **Multiple breakpoints**: iPhone SE, iPhone 14 Pro Max, Pixel, ecc.
+✅ **Auto font sizing**: Caratteri automaticamente adattati
+✅ **Touch optimization**: Niente zoom accidentali, tap perfetti
+✅ **Landscape mode**: Funziona anche ruotando il telefono
+✅ **Full screen PWA**: Esperienza nativa completa**
 
 ## 📱 PER INSTALLARE:
 
