@@ -1,7 +1,7 @@
 {
-  "name": "The Final Radar (T.F.R)",
-  "short_name": "T.F.R",
-  "description": "App meteo professional con radar mondiale, previsioni e mappe interattive. Santa Teresa di Riva.",
+  "name": "TFR Weather",
+  "short_name": "TFR",
+  "description": "Weather radar app with worldwide coverage, forecasts and interactive maps. Professional meteorology tool.",
   "start_url": "./the_final_radar.html",
   "display": "standalone",
   "background_color": "#020617",
@@ -28,16 +28,16 @@
   "prefer_related_applications": false,
   "shortcuts": [
     {
-      "name": "Radar Mondo",
-      "short_name": "Mondo",
-      "description": "Vai al radar mondiale",
+      "name": "World Radar",
+      "short_name": "World",
+      "description": "Go to world radar",
       "url": "./the_final_radar.html?view=world",
       "icons": [{ "src": "Copilot_20260526_201904.png", "sizes": "512x512" }]
     },
     {
       "name": "Santa Teresa",
       "short_name": "Santa Teresa",
-      "description": "Vai a Santa Teresa di Riva",
+      "description": "Go to Santa Teresa di Riva",
       "url": "./the_final_radar.html?view=santateresa",
       "icons": [{ "src": "Copilot_20260526_201904.png", "sizes": "512x512" }]
     }
