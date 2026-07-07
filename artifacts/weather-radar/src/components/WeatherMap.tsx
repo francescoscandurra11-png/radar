@@ -95,7 +95,8 @@ export default function WeatherMap() {
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution="&copy; Esri"
-          
+          maxNativeZoom={19}
+          maxZoom={25}
         />
 
         {/* RainViewer Clouds / Satellite */}

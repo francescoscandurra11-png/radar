@@ -1,6 +1,6 @@
 {
-  "name": "TFR Weather Pro",
-  "short_name": "TFR Weather",
+  "name": "The Final Radar",
+  "short_name": "Final Radar",
   "description": "Radar meteo professionale con previsioni orarie e settimanali in italiano",
   "start_url": "/",
   "display": "standalone",

@@ -54,9 +54,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
         <div>
           <h1 className="text-lg sm:text-xl font-bold tracking-tight text-sidebar-primary flex items-center gap-2">
             <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
-            TFR Weather
+            The Final Radar
           </h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider font-mono">Professional Pro</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider font-mono">francescoscandurra11</p>
         </div>
         {/* Close button — visible only on mobile (rendered by parent overlay) */}
         {onClose && (
