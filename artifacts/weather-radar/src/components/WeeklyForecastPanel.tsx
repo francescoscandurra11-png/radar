@@ -163,9 +163,8 @@ export default function WeeklyForecastPanel() {
                 <div className="divide-y divide-border/40 px-2 sm:px-4 pb-4">
                   {days.map((day, idx) => {
                     const isToday = idx === 0;
-                    const dayName = isToday
-                      ? 'Oggi'
-                      : format(day.date, 'EEEE', { locale: it }).charAt(0).toUpperCase() + format(day.date, 'EEEE', { locale: it }).slice(1);
+                    const rawDay = format(day.date, 'EEEE', { locale: it });
+                    const dayName = rawDay.charAt(0).toUpperCase() + rawDay.slice(1);
                     const dateLabel = format(day.date, 'd MMMM', { locale: it });
 
                     // Temp bar width relative to range across all days
