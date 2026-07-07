@@ -36,7 +36,7 @@ export default function SevereWeatherPanel() {
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed top-0 bottom-[60px] right-0 w-[400px] bg-card/95 backdrop-blur-xl border-l border-border z-30 shadow-2xl flex flex-col font-sans"
+          className="fixed bottom-[60px] right-0 top-0 w-full sm:w-[400px] bg-card/95 backdrop-blur-xl border-l border-border z-30 shadow-2xl flex flex-col font-sans"
         >
           <div className="flex items-center justify-between p-5 border-b border-border/50 bg-destructive/5">
             <div className="flex items-center gap-3 text-destructive">

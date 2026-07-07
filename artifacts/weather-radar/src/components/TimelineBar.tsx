@@ -57,7 +57,7 @@ export default function TimelineBar() {
     : 'In attesa dati...';
 
   return (
-    <div className="fixed bottom-0 left-[240px] right-0 h-[60px] bg-card/95 backdrop-blur-xl border-t border-border z-40 flex items-center px-6 justify-between font-sans shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+    <div className="fixed bottom-0 left-0 md:left-[240px] right-0 h-[60px] bg-card/95 backdrop-blur-xl border-t border-border z-40 flex items-center px-3 sm:px-6 justify-between font-sans shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
       
       {/* Left controls */}
       <div className="flex items-center gap-6">

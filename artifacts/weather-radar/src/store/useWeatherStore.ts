@@ -11,7 +11,7 @@ export interface LayerState {
   tornado: boolean;
 }
 
-export type PanelType = 'forecast' | 'severe' | 'flights' | null;
+export type PanelType = 'forecast' | 'weekly' | 'severe' | 'flights' | null;
 
 interface WeatherStore {
   layers: LayerState;
@@ -24,6 +24,9 @@ interface WeatherStore {
   
   activePanel: PanelType;
   setActivePanel: (panel: PanelType) => void;
+
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
   
   selectedLocation: { lat: number; lon: number; name: string } | null;
   setSelectedLocation: (loc: { lat: number; lon: number; name: string } | null) => void;
@@ -56,6 +59,9 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
   
   activePanel: null,
   setActivePanel: (panel) => set((state) => ({ activePanel: state.activePanel === panel ? null : panel })),
+
+  sidebarOpen: false,
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
   
   selectedLocation: null,
   setSelectedLocation: (loc) => set({ selectedLocation: loc, activePanel: loc ? 'forecast' : null }),

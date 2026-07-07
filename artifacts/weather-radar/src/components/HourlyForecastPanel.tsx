@@ -42,9 +42,9 @@ export default function HourlyForecastPanel() {
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-[60px] left-[240px] right-0 h-[320px] bg-card/95 backdrop-blur-xl border-t border-border z-30 shadow-2xl flex flex-col font-sans"
+          className="fixed bottom-[60px] left-0 md:left-[240px] right-0 h-[300px] sm:h-[320px] bg-card/95 backdrop-blur-xl border-t border-border z-30 shadow-2xl flex flex-col font-sans"
         >
-          <div className="flex items-center justify-between px-6 py-3 border-b border-border/50">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border/50">
             <div>
               <h3 className="font-bold text-foreground">Previsioni Orarie</h3>
               <p className="text-xs font-mono text-muted-foreground">{targetName}</p>
@@ -57,7 +57,7 @@ export default function HourlyForecastPanel() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 flex gap-4 scrollbar-hide">
+          <div className="flex-1 overflow-x-auto overflow-y-hidden p-3 sm:p-4 flex gap-3 sm:gap-4 scrollbar-hide">
             {isLoading && <div className="text-muted-foreground font-mono m-auto">Caricamento previsioni...</div>}
             
             {forecast && forecast.time.slice(0, 48).map((timeStr, i) => {
