@@ -95,7 +95,7 @@ export default function WeatherMap() {
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution="&copy; Esri"
-          maxZoom={18}
+          
         />
 
         {/* RainViewer Clouds / Satellite */}
@@ -206,7 +206,7 @@ export default function WeatherMap() {
            className="w-10 h-10 bg-card/90 backdrop-blur border border-border text-foreground rounded-md shadow-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors font-mono text-xl"
            onClick={() => {
              const zoom = useWeatherStore.getState().mapZoom;
-             useWeatherStore.getState().setMapZoom(Math.min(zoom + 1, 18));
+             useWeatherStore.getState().setMapZoom(zoom + 1);
            }}
          >
            +
@@ -215,7 +215,7 @@ export default function WeatherMap() {
            className="w-10 h-10 bg-card/90 backdrop-blur border border-border text-foreground rounded-md shadow-lg flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors font-mono text-xl"
            onClick={() => {
              const zoom = useWeatherStore.getState().mapZoom;
-             useWeatherStore.getState().setMapZoom(Math.max(zoom - 1, 2));
+             useWeatherStore.getState().setMapZoom(Math.max(zoom - 1, 0));
            }}
          >
            -
