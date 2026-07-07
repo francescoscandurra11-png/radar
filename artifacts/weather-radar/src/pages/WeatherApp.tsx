@@ -6,7 +6,6 @@ import TimelineBar from '../components/TimelineBar';
 import HourlyForecastPanel from '../components/HourlyForecastPanel';
 import WeeklyForecastPanel from '../components/WeeklyForecastPanel';
 import SevereWeatherPanel from '../components/SevereWeatherPanel';
-import FlightsPanel from '../components/FlightsPanel';
 import { useWeatherStore } from '../store/useWeatherStore';
 
 export default function WeatherApp() {
@@ -68,7 +67,6 @@ export default function WeatherApp() {
       <HourlyForecastPanel />
       <WeeklyForecastPanel />
       <SevereWeatherPanel />
-      <FlightsPanel />
 
       {/* Noise texture overlay */}
       <div

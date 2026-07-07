@@ -6,7 +6,6 @@ import 'leaflet/dist/leaflet.css';
 
 import { useWeatherStore } from '../store/useWeatherStore';
 import { useRainViewer } from '../hooks/useRainViewer';
-import { useFlights } from '../hooks/useFlights';
 import { useCityTemperatures } from '../hooks/useCityTemperatures';
 import { useSevereWeather } from '../hooks/useSevereWeather';
 
@@ -67,7 +66,6 @@ const getTempColor = (temp: number) => {
 export default function WeatherMap() {
   const { layers, radarOpacity, playbackState, selectedLocation } = useWeatherStore();
   const { data: rainData } = useRainViewer();
-  const { data: flights } = useFlights();
   const { data: cities } = useCityTemperatures();
   const { data: severeAlerts } = useSevereWeather();
 
@@ -82,16 +80,6 @@ export default function WeatherMap() {
     const frames = rainData.satellite.infrared;
     return frames[Math.min(playbackState.frameIndex, frames.length - 1)] || frames[frames.length - 1];
   }, [rainData, playbackState.frameIndex]);
-
-  // Create custom flight icons dynamically
-  const createFlightIcon = (heading: number) => {
-    return L.divIcon({
-      className: 'leaflet-div-icon',
-      html: `<div style="transform: rotate(${heading}deg); color: hsl(200 90% 55%); font-size: 16px; text-shadow: 0 0 3px #000;">✈</div>`,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
-    });
-  };
 
   return (
     <div className="absolute inset-0 h-[100dvh] w-full bg-background z-0">
@@ -156,25 +144,6 @@ export default function WeatherMap() {
             </Popup>
           </Marker>
         )}
-
-        {/* Flight Markers */}
-        {layers.flights && flights && flights.map((flight) => (
-          <Marker
-            key={flight.icao24}
-            position={[flight.lat, flight.lon]}
-            icon={createFlightIcon(flight.heading)}
-          >
-            <Popup>
-              <div className="font-mono text-sm space-y-1">
-                <div className="font-bold text-primary mb-2">Volo {flight.callsign}</div>
-                <div>Origine: {flight.originCountry}</div>
-                <div>Altitudine: {flight.altitude} m</div>
-                <div>Velocità: {flight.velocity} m/s</div>
-                <div>Prua: {flight.heading}°</div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
 
         {/* Temperature Markers */}
         {layers.temperature && cities && cities.map((city) => (

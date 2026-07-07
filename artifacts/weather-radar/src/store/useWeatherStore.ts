@@ -7,11 +7,10 @@ export interface LayerState {
   temperature: boolean;
   wind: boolean;
   lightning: boolean;
-  flights: boolean;
   tornado: boolean;
 }
 
-export type PanelType = 'forecast' | 'weekly' | 'severe' | 'flights' | null;
+export type PanelType = 'forecast' | 'weekly' | 'severe' | null;
 
 interface WeatherStore {
   layers: LayerState;
@@ -46,7 +45,6 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
     temperature: false,
     wind: false,
     lightning: false,
-    flights: false,
     tornado: false,
   },
   toggleLayer: (layer) =>

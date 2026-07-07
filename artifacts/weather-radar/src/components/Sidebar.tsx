@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Search, Map, CloudRain, Cloud, Thermometer, Wind, Zap, Plane, Tornado, Navigation, X, CalendarDays } from 'lucide-react';
+import { Search, Map, CloudRain, Cloud, Thermometer, Wind, Zap, Tornado, Navigation, X, CalendarDays } from 'lucide-react';
 import { useWeatherStore, LayerState } from '../store/useWeatherStore';
 
 const LAYER_CONFIG: { key: keyof LayerState; label: string; icon: React.FC<any> }[] = [
@@ -10,7 +10,6 @@ const LAYER_CONFIG: { key: keyof LayerState; label: string; icon: React.FC<any> 
   { key: 'temperature', label: 'Radar temperature', icon: Thermometer },
   { key: 'wind', label: 'Radar vento', icon: Wind },
   { key: 'lightning', label: 'Radar fulmini', icon: Zap },
-  { key: 'flights', label: 'Voli in tempo reale', icon: Plane },
   { key: 'tornado', label: 'Tornado & Cicloni', icon: Tornado },
 ];
 
@@ -114,9 +113,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             onClick={() => {
               toggleLayer(key);
               if (key === 'tornado' && !layers.tornado) setActivePanel('severe');
-              if (key === 'flights' && !layers.flights) setActivePanel('flights');
               if (key === 'tornado' && layers.tornado) setActivePanel(null);
-              if (key === 'flights' && layers.flights) setActivePanel(null);
               onClose?.();
             }}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all text-sm ${
@@ -166,7 +163,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
         <div className="text-[10px] text-muted-foreground space-y-0.5 font-mono">
           <div>Dati radar: RainViewer</div>
           <div>Previsioni: Open-Meteo</div>
-          <div>Voli: OpenSky Network</div>
         </div>
       </div>
     </div>
