@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="description" content="The Final Radar (T.F.R) - App meteo professional con radar mondiale, previsioni e mappe interattive. Santa Teresa di Riva." />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="TFR Weather" />
+  <meta name="apple-mobile-web-app-title" content="TFR" />
+  <meta name="msapplication-TileColor" content="#0f172a" />
+  <meta name="msapplication-config" content="none" />
+  <title>TFR Weather — Professional Weather Radar</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="Copilot_20260526_201904.png" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registrato'))
+        .catch(err => console.log('Service Worker non registrato:', err));
+    }
+  </script>
+  <style>
+    :root {
+      --sidebar-w: 240px;
+      --bottom-h: 95px;
+      --accent: #e53935;
+      --panel: #0f172a;
+      --panel2: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font-family: "Segoe UI", system-ui, sans-serif; background: #020617; color: var(--text); }
+    body { overscroll-behavior: none; }
+    /* Mobile viewport stability: prevent 100vh jump on address bar */
+    :root { --app-h: 100dvh; }
+    @supports not (height: 100dvh) { :root { --app-h: calc(var(--vh, 1vh) * 100); } }
+    #app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; grid-template-rows: 1fr var(--bottom-h); height: var(--app-h); }
+    #sidebar {
+      grid-row: 1 / 3;
+      background: var(--panel);
+      border-right: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .brand { padding: 18px 16px 12px; border-bottom: 1px solid #334155; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+    .brand h1 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--accent); }
+    .brand p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+    .nav { flex: 1; overflow-y: auto; padding: 10px; }
+    .nav button {
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      padding: 12px 14px;
+      margin-bottom: 5px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .nav button:hover { background: var(--panel2); }
+    .nav button.active { background: #1d4ed8; }
+    .nav .icon { width: 24px; text-align: center; opacity: 0.9; font-size: 18px; }
+    .sidebar-foot { padding: 12px 14px; font-size: 11px; color: var(--muted); border-top: 1px solid #334155; background: var(--panel2); }
+    .quick-places { padding: 10px 10px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-places button {
+      flex: 1 1 45%;
+      min-width: 85px;
+      padding: 10px 12px;
+      font-size: 12px;
+      border-radius: 10px;
+      border: 1px solid #475569;
+      background: var(--panel2);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-places button:hover { background: #334155; border-color: var(--accent); }
+    #search-box {
+      margin: 10px;
+      padding: 12px 14px;
+      width: calc(100% - 20px);
+      border-radius: 10px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: var(--text);
+      font-size: 14px;
+    }
+    #search-box:focus { outline: none; border-color: var(--accent); }
+    .leaflet-control-geocoder { border-radius: 10px; }
+    #map-wrap { position: relative; min-height: 0; }
+    #map { width: 100%; height: 100%; touch-action: pan-x pan-y; }
+    #hud {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 800;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .chip {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      backdrop-filter: blur(8px);
+      pointer-events: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .chip strong { color: var(--accent); }
+    #map-tools {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 800;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #map-tools label, #map-tools select, #map-tools button {
+      pointer-events: auto;
+      font-size: 13px;
+    }
+    #map-tools select, #map-tools button {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #map-tools select:hover, #map-tools button:hover { border-color: var(--accent); }
+    #legend {
+      position: absolute;
+      bottom: 110px;
+      right: 15px;
+      z-index: 800;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12px;
+      min-width: 150px;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    #legend.visible { display: block; }
+    #legend .bar {
+      height: 14px;
+      border-radius: 6px;
+      margin: 8px 0;
+      background: linear-gradient(90deg,
+        #88ccee 0%, #44aadd 15%, #0088cc 30%, #ffff00 45%,
+        #ffaa00 60%, #ff6600 75%, #ff0000 90%, #cc00cc 100%);
+    }
+  #bottom {
+      grid-column: 2;
+      background: var(--panel);
+      border-top: 1px solid #334155;
+      padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #time-row { display: flex; align-items: center; gap: 14px; }
+    #timestamp { min-width: 220px; font-size: 16px; font-weight: 600; color: var(--accent); }
+    .ctrl-btns { display: flex; gap: 8px; }
+    .ctrl-btns button {
+      width: 40px; height: 40px;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      background: var(--panel2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    .ctrl-btns button:hover { background: #334155; border-color: var(--accent); }
+    .ctrl-btns button.active-play { background: #1d4ed8; border-color: #3b82f6; }
+    #slider-wrap { flex: 1; display: flex; align-items: center; gap: 12px; }
+    #time-slider { flex: 1; accent-color: #3b82f6; cursor: pointer; }
+    #opacity-slider { width: 130px; accent-color: #3b82f6; }
+    .status { font-size: 12px; color: var(--muted); }
+    .leaflet-control-layers { font-size: 13px; }
+    
+    /* Tablet responsive */
+    @media (max-width: 1024px) {
+      :root { --sidebar-w: 200px; }
+      .brand h1 { font-size: 14px; }
+      .nav button { padding: 10px 12px; font-size: 13px; }
+      .quick-places button { min-width: 75px; font-size: 11px; }
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      :root {
+        --sidebar-w: 56px;
+        --bottom-h: 90px;
+      }
+      .brand h1, .brand p, .nav button span.txt, .sidebar-foot { display: none; }
+      .nav button { justify-content: center; padding: 12px 8px; }
+      .nav .icon { font-size: 18px; }
+      .quick-places { display: none; }
+      #search-box { display: none; }
+      #hud { top: 8px; left: 8px; gap: 6px; }
+      .chip { padding: 6px 10px; font-size: 11px; }
+      #map-tools { top: 8px; right: 8px; gap: 5px; }
+      #map-tools select, #map-tools button { padding: 5px 8px; font-size: 10px; }
+      #legend { bottom: 105px; right: 8px; padding: 8px 10px; font-size: 10px; min-width: 120px; }
+      #bottom { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+      #time-row { flex-wrap: wrap; gap: 8px; }
+      #timestamp { min-width: 160px; font-size: 13px; }
+      .ctrl-btns button { width: 32px; height: 32px; font-size: 14px; }
+    }
+    
+    /* Small mobile */
+    @media (max-width: 480px) {
+      :root {
+        --sidebar-w: 48px;
+        --bottom-h: 95px;
+      }
+      .nav button { padding: 10px 6px; }
+      .nav .icon { font-size: 16px; }
+      #time-row { gap: 6px; }
+      #timestamp { min-width: 130px; font-size: 12px; }
+      .ctrl-btns button { width: 28px; height: 28px; font-size: 13px; }
+      #slider-wrap { gap: 6px; }
+      #hud { top: 6px; left: 6px; }
+      #map-tools { top: 6px; right: 6px; }
+    }
+
+    /* Extra small mobile (iPhone SE, etc.) */
+    @media (max-width: 375px) {
+      :root {
+        --sidebar-w: 44px;
+        --bottom-h: 85px;
+      }
+      .nav button { padding: 8px 4px; }
+      .nav .icon { font-size: 14px; }
+      #timestamp { min-width: 110px; font-size: 11px; }
+      .ctrl-btns button { width: 26px; height: 26px; font-size: 12px; }
+      #map-tools select, #map-tools button { padding: 4px 6px; font-size: 9px; }
+    }
+
+    /* Modern iPhone with notch */
+    @supports (padding: max(0px)) {
+      #bottom {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+      #sidebar {
+        padding-top: max(0px, env(safe-area-inset-top));
+      }
+    }
+    
+    /* Landscape mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      :root { --bottom-h: 70px; }
+      #bottom { padding: 8px 14px calc(10px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+      .status { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="brand">
+        <h1>TFR Weather</h1>
+        <p>Professional Weather Radar</p>
+      </div>
+      <input type="text" id="search-box" placeholder="Cerca città nel mondo…" autocomplete="off" />
+      <div class="quick-places">
+        <button type="button" data-place="world">🌍 Mondo</button>
+        <button type="button" data-place="europe">🇪🇺 Europa</button>
+        <button type="button" data-place="italy">🇮🇹 Italia</button>
+        <button type="button" data-place="santateresa">📍 Santa Teresa</button>
+      </div>
+      <nav class="nav" id="layer-nav">
+        <button type="button" data-layer="wr" class="active"><span class="icon">🌧</span><span class="txt">Radar meteo</span></button>
+        <button type="button" data-layer="rr"><span class="icon">💧</span><span class="txt">Radar pioggia</span></button>
+        <button type="button" data-layer="sat"><span class="icon">☁</span><span class="txt">Nuvole / satellite</span></button>
+        <button type="button" data-layer="tr"><span class="icon">🌡</span><span class="txt">Radar temperature</span></button>
+        <button type="button" data-layer="gr"><span class="icon">💨</span><span class="txt">Radar vento</span></button>
+        <button type="button" data-layer="lr"><span class="icon">⚡</span><span class="txt">Radar fulmini</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        Dati radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener" style="color:#93c5fd">RainViewer</a><br>
+        Previsioni: <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:#93c5fd">Open-Meteo</a><br>
+        Mappe: <a href="https://github.com/francescoscandurra11-png/radar" target="_blank" rel="noopener" style="color:#93c5fd">GitHub</a>
+      </div>
+    </aside>
+
+    <div id="map-wrap">
+      <div id="map"></div>
+      <div id="hud">
+        <div class="chip" id="location-chip"><strong>Mondo</strong> · sposta la mappa o cerca una città</div>
+        <div class="chip" id="forecast-chip" style="display:none"></div>
+      </div>
+      <div id="map-tools">
+        <select id="basemap-select" title="Mappa di base">
+          <option value="satellite" selected>Satellite</option>
+          <option value="google">Google Maps</option>
+          <option value="local">Santa Teresa (locale)</option>
+          <option value="osm">Stradale</option>
+        </select>
+        <button type="button" id="legend-btn" title="Legenda">Legenda ?</button>
+        <button type="button" id="locate-btn" title="La mia posizione">📍 GPS</button>
+        <button type="button" id="refresh-grid-btn" title="Aggiorna dati area visibile">↻ Area</button>
+      </div>
+      <div id="legend">
+        <strong>Intensità precipitazioni</strong>
+        <div class="bar"></div>
+        <div>Debole → Forte</div>
+        <div style="margin-top:6px;color:var(--muted)">Blu: pioggia · Giallo/arancio: forte · Viola: molto forte</div>
+      </div>
+    </div>
+
+    <footer id="bottom">
+      <div id="time-row">
+        <div id="timestamp">Caricamento radar…</div>
+        <div class="ctrl-btns">
+          <button type="button" id="btn-prev" title="Indietro">‹</button>
+          <button type="button" id="btn-play" class="active-play" title="Play/Pausa">⏸</button>
+          <button type="button" id="btn-next" title="Avanti">›</button>
+        </div>
+        <div id="slider-wrap">
+          <input type="range" id="time-slider" min="0" max="0" value="0" />
+          <label title="Opacità overlay">
+            <span class="status">Opacità</span>
+            <input type="range" id="opacity-slider" min="20" max="100" value="75" />
+          </label>
+        </div>
+      </div>
+      <div class="status" id="status-line">Connessione ai server meteo…</div>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script>
+    const SANTA_TERESA = [37.9467, 15.3686];
+    const LOCAL_BOUNDS = [[37.928, 15.338], [37.968, 15.398]];
+    const PLACES = {
+      world:  { center: [20, 0], zoom: 2, name: "Mondo" },
+      europe: { center: [54, 15], zoom: 4, name: "Europa" },
+      italy:  { center: [42.5, 12.5], zoom: 6, name: "Italia" },
+      santateresa: { center: SANTA_TERESA, zoom: 13, name: "Santa Teresa di Riva" }
+    };
+    const RAINVIEWER_API = "https://api.rainviewer.com/public/weather-maps.json";
+    const TILE_SIZE = window.devicePixelRatio >= 2 ? 512 : 256;
+    const ANIMATION_MS = 600;
+    const REFRESH_API_MS = 5 * 60 * 1000;
+    const GRID_DEBOUNCE_MS = 800;
+
+    let map, marker, apiData = null;
+    let focusName = "Mondo";
+    let focusLatLng = L.latLng(20, 0);
+    let gridFetchTimer = null;
+    let gridLoading = false;
+    let frames = [];
+    let frameIndex = 0;
+    let playing = true;
+    let animTimer = null;
+    let currentLayerKind = "wr";
+    let radarLayer = null;
+    let satelliteLayer = null;
+    let heatLayer = null;
+    let windCanvasLayer = null;
+    let lightningLayer = null;
+    let layerCache = {};
+    let openMeteoHourly = null;
+    let gridTemps = null;
+    let gridWind = null;
+
+    const baseLayers = {};
+    let localOverlay = null;
+
+    function setStatus(msg) {
+      document.getElementById("status-line").textContent = msg;
+    }
+
+    function formatFrameTime(ts) {
+      const d = new Date(ts * 1000);
+      const giorni = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+      return `${giorni[d.getDay()]}  ${d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
+    function updateTimestamp() {
+      const f = frames[frameIndex];
+      if (!f) return;
+      const label = f.isNowcast ? formatFrameTime(f.time) + " (previsione)" : formatFrameTime(f.time);
+      document.getElementById("timestamp").textContent = label;
+      document.getElementById("time-slider").value = frameIndex;
+    }
+
+    function buildFrames(data) {
+      const list = [];
+      if (data.radar && data.radar.past) {
+        data.radar.past.forEach(f => list.push({ ...f, type: "radar", isNowcast: false }));
+      }
+      if (data.radar && data.radar.nowcast) {
+        data.radar.nowcast.forEach(f => list.push({ ...f, type: "radar", isNowcast: true }));
+      }
+      return list;
+    }
+
+    function buildSatFrames(data) {
+      const list = [];
+      const sat = data.satellite && data.satellite.infrared;
+      if (sat && sat.past) sat.past.forEach(f => list.push({ ...f, type: "sat", isNowcast: false }));
+      return list;
+    }
+
+    function tileUrl(path, colorScheme) {
+      return apiData.host + path + "/" + TILE_SIZE + "/{z}/{x}/{y}/" + colorScheme + "/1_1.png";
+    }
+
+    function createTileLayer(frame, colorScheme) {
+      return L.tileLayer(tileUrl(frame.path, colorScheme), {
+        tileSize: 256,
+        opacity: 0.01,
+        maxNativeZoom: 7,
+        maxZoom: 14,
+        crossOrigin: true
+      });
+    }
+
+    function getOpacity() {
+      return document.getElementById("opacity-slider").value / 100;
+    }
+
+    function removeOverlayLayers() {
+      [radarLayer, satelliteLayer, heatLayer, windCanvasLayer, lightningLayer].forEach(l => {
+        if (l && map.hasLayer(l)) map.removeLayer(l);
+      });
+      radarLayer = satelliteLayer = heatLayer = windCanvasLayer = lightningLayer = null;
+    }
+
+    function clearCache() {
+      Object.values(layerCache).forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+      layerCache = {};
+    }
+
+    function showRadarFrame(index) {
+      if (!frames.length || !apiData) return;
+      index = ((index % frames.length) + frames.length) % frames.length;
+      frameIndex = index;
+      updateTimestamp();
+
+      const frame = frames[index];
+      const key = currentLayerKind + "-" + frame.path;
+
+      const apply = (layer) => {
+        removeOverlayLayers();
+        radarLayer = layer;
+        layer.setOpacity(getOpacity());
+        layer.addTo(map);
+      };
+
+      if (layerCache[key]) {
+        apply(layerCache[key]);
+        return;
+      }
+
+      const scheme = currentLayerKind === "rr" ? "6" : "2";
+      const layer = createTileLayer(frame, scheme);
+      layer.once("load", () => {
+        layerCache[key] = layer;
+        if (frameIndex === index) apply(layer);
+      });
+      layer.addTo(map);
+    }
+
+    function showSatFrame(index) {
+      const satFrames = buildSatFrames(apiData);
+      if (!satFrames.length) {
+        setStatus("Satellite non disponibile; uso radar.");
+        frames = buildFrames(apiData);
+        currentLayerKind = "wr";
+        showRadarFrame(frameIndex);
+        return;
+      }
+      index = Math.min(index, satFrames.length - 1);
+      const frame = satFrames[index];
+      removeOverlayLayers();
+      satelliteLayer = createTileLayer(frame, "0");
+      satelliteLayer.setOpacity(getOpacity());
+      satelliteLayer.addTo(map);
+      document.getElementById("timestamp").textContent = formatFrameTime(frame.time) + " · satellite IR";
+    }
+
+    function tempColor(t) {
+      if (t <= 8) return "#3b82f6";
+      if (t <= 14) return "#22d3ee";
+      if (t <= 20) return "#a3e635";
+      if (t <= 26) return "#facc15";
+      if (t <= 32) return "#f97316";
+      return "#dc2626";
+    }
+
+    function buildGridFromBounds() {
+      const b = map.getBounds();
+      const sw = b.getSouthWest();
+      const ne = b.getNorthEast();
+      const zoom = map.getZoom();
+      const cells = zoom < 4 ? 4 : zoom < 7 ? 6 : zoom < 10 ? 7 : 8;
+      const lats = [], lons = [], points = [];
+      for (let i = 0; i <= cells; i++) {
+        for (let j = 0; j <= cells; j++) {
+          const la = sw.lat + (ne.lat - sw.lat) * (i / cells);
+          let lo = sw.lng + (ne.lng - sw.lng) * (j / cells);
+          if (lo > 180) lo -= 360;
+          if (lo < -180) lo += 360;
+          lats.push(la.toFixed(3));
+          lons.push(lo.toFixed(3));
+          points.push([la, lo]);
+        }
+      }
+      if (lats.length > 80) {
+        const step = Math.ceil(lats.length / 80);
+        return {
+          lats: lats.filter((_, i) => i % step === 0),
+          lons: lons.filter((_, i) => i % step === 0),
+          points: points.filter((_, i) => i % step === 0)
+        };
+      }
+      return { lats, lons, points };
+    }
+
+    function setFocus(lat, lng, name) {
+      focusLatLng = L.latLng(lat, lng);
+      focusName = name || `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
+      marker.setLatLng(focusLatLng);
+      updateLocationChip();
+    }
+
+    function updateLocationChip() {
+      const c = map.getCenter();
+      document.getElementById("location-chip").innerHTML =
+        `<strong>${focusName}</strong> · centro mappa ${c.lat.toFixed(2)}°N, ${c.lng.toFixed(2)}°E · zoom ${map.getZoom()}`;
+    }
+
+    async function fetchOpenMeteoGrid() {
+      if (!map || gridLoading) return;
+      gridLoading = true;
+      setStatus("Caricamento dati meteo per l'area visibile…");
+      const { lats, lons, points } = buildGridFromBounds();
+      const center = map.getCenter();
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats.join(",")}&longitude=${lons.join(",")}&hourly=temperature_2m,precipitation,windspeed_10m,winddirection_10m,weathercode&timezone=auto&forecast_days=3`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Open-Meteo");
+        const json = await res.json();
+        const multi = Array.isArray(json) ? json : [json];
+        let centerIdx = 0;
+        let bestD = Infinity;
+        points.forEach((p, idx) => {
+          const d = (p[0] - center.lat) ** 2 + (p[1] - center.lng) ** 2;
+          if (d < bestD) { bestD = d; centerIdx = idx; }
+        });
+        openMeteoHourly = multi[centerIdx].hourly;
+        gridTemps = points.map((p, idx) => ({
+          latlng: L.latLng(p[0], p[1]),
+          temps: multi[idx].hourly.temperature_2m,
+          precip: multi[idx].hourly.precipitation,
+          windSpd: multi[idx].hourly.windspeed_10m,
+          windDir: multi[idx].hourly.winddirection_10m,
+          codes: multi[idx].hourly.weathercode
+        }));
+        updateForecastChip(nearestHourIndex());
+        setStatus(`Dati aggiornati · ${points.length} punti nell'area visibile (mondo)`);
+        if (["tr", "gr", "lr"].includes(currentLayerKind)) applyLayer(currentLayerKind);
+      } catch (e) {
+        console.error(e);
+        setStatus("Errore dati Open-Meteo per quest'area. Riprova.");
+      } finally {
+        gridLoading = false;
+      }
+    }
+
+    function scheduleGridRefresh() {
+      clearTimeout(gridFetchTimer);
+      gridFetchTimer = setTimeout(() => {
+        fetchOpenMeteoGrid();
+        updateLocationChip();
+      }, GRID_DEBOUNCE_MS);
+    }
+
+    function nearestHourIndex() {
+      if (!openMeteoHourly || !openMeteoHourly.time) return 0;
+      const now = Date.now();
+      let best = 0, bestDiff = Infinity;
+      openMeteoHourly.time.forEach((t, i) => {
+        const d = Math.abs(new Date(t).getTime() - now);
+        if (d < bestDiff) { bestDiff = d; best = i; }
+      });
+      return best + frameIndex;
+    }
+
+    function updateForecastChip(hourIdx) {
+      if (!openMeteoHourly) return;
+      const i = Math.min(hourIdx, openMeteoHourly.time.length - 1);
+      const t = openMeteoHourly.temperature_2m[i];
+      const p = openMeteoHourly.precipitation[i];
+      const w = openMeteoHourly.windspeed_10m[i];
+      const chip = document.getElementById("forecast-chip");
+      chip.style.display = "block";
+      chip.innerHTML = `<strong>${focusName}</strong> · ${Math.round(t)}°C · Pioggia ${p.toFixed(1)} mm/h · Vento ${Math.round(w)} km/h`;
+      updateLocationChip();
+    }
+
+    function drawTempLayer() {
+      if (!gridTemps) return;
+      removeOverlayLayers();
+      const hi = Math.min(nearestHourIndex(), openMeteoHourly.time.length - 1);
+      updateForecastChip(hi);
+      const heat = [];
+      gridTemps.forEach(g => {
+        const t = g.temps[hi] ?? g.temps[0];
+        heat.push([g.latlng.lat, g.latlng.lng, Math.max(0.15, (t - 5) / 25)]);
+      });
+      const z = map.getZoom();
+      heatLayer = L.heatLayer(heat, {
+        radius: z < 4 ? 28 : z < 7 ? 42 : 55,
+        blur: z < 4 ? 20 : 28,
+        maxZoom: 14,
+        gradient: {
+          0.0: "#3b82f6", 0.25: "#22d3ee", 0.45: "#a3e635",
+          0.65: "#facc15", 0.8: "#f97316", 1.0: "#dc2626"
+        }
+      }).addTo(map);
+      document.getElementById("timestamp").textContent =
+        "Temperatura · " + new Date(openMeteoHourly.time[hi]).toLocaleString("it-IT", { weekday: "long", hour: "2-digit", minute: "2-digit" });
+    }
+
+    const WindLayer = L.Layer.extend({
+      onAdd(map) {
+        this._map = map;
+        this._canvas = L.DomUtil.create("canvas", "leaflet-wind-layer");
+        const pane = map.getPanes().overlayPane;
+        pane.appendChild(this._canvas);
+        map.on("moveend zoomend resize", this._draw, this);
+        this._draw();
+      },
+      onRemove(map) {
+        map.off("moveend zoomend resize", this._draw, this);
+        L.DomUtil.remove(this._canvas);
+      },
+      _draw() {
+        if (!this._map || !gridTemps) return;
+        const map = this._map;
+        const size = map.getSize();
+        const canvas = this._canvas;
+        canvas.width = size.x;
+        canvas.height = size.y;
+        canvas.style.width = size.x + "px";
+        canvas.style.height = size.y + "px";
+        const topLeft = map.containerPointToLayerPoint([0, 0]);
+        L.DomUtil.setPosition(canvas, topLeft);
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, size.x, size.y);
+        const hi = Math.min(nearestHourIndex(), openMeteoHourly.time.length - 1);
+        gridTemps.forEach(g => {
+          const pt = map.latLngToContainerPoint(g.latlng);
+          const spd = g.windSpd[hi] ?? 0;
+          const dir = (g.windDir[hi] ?? 0) * Math.PI / 180;
+          const len = 8 + spd * 0.35;
+          const dx = Math.sin(dir) * len;
+          const dy = -Math.cos(dir) * len;
+          const col = spd < 15 ? "#4ade80" : spd < 30 ? "#facc15" : spd < 50 ? "#fb923c" : "#ef4444";
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.85;
+          ctx.beginPath();
+          ctx.moveTo(pt.x, pt.y);
+          ctx.lineTo(pt.x + dx, pt.y + dy);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(pt.x + dx, pt.y + dy);
+          ctx.lineTo(pt.x + dx - 4, pt.y + dy + (dx > 0 ? 4 : -4));
+          ctx.lineTo(pt.x + dx + 4, pt.y + dy + (dx > 0 ? -4 : 4));
+          ctx.closePath();
+          ctx.fillStyle = col;
+          ctx.fill();
+        });
+        document.getElementById("timestamp").textContent =
+          "Vento · " + new Date(openMeteoHourly.time[hi]).toLocaleString("it-IT", { weekday: "long", hour: "2-digit", minute: "2-digit" });
+      }
+    });
+
+    function drawWindLayer() {
+      removeOverlayLayers();
+      windCanvasLayer = new WindLayer();
+      windCanvasLayer.addTo(map);
+      windCanvasLayer._draw();
+      updateForecastChip(nearestHourIndex());
+    }
+
+    function drawLightningLayer() {
+      if (!gridTemps) return;
+      removeOverlayLayers();
+      const hi = Math.min(nearestHourIndex(), openMeteoHourly.time.length - 1);
+      const group = L.layerGroup();
+      const stormCodes = new Set([95, 96, 97, 99]);
+      gridTemps.forEach(g => {
+        const code = g.codes[hi];
+        const rain = g.precip[hi] ?? 0;
+        const w = g.windSpd[hi] ?? 0;
+        if (stormCodes.has(code) || (rain > 2 && w > 25)) {
+          const icon = L.divIcon({
+            className: "",
+            html: '<div style="font-size:22px;text-shadow:0 0 8px #fff,0 0 16px #ff0">⚡</div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          });
+          L.marker(g.latlng, { icon }).addTo(group);
+        }
+      });
+      if (group.getLayers().length === 0) {
+        L.marker(map.getCenter(), {
+          icon: L.divIcon({
+            html: '<div style="background:rgba(15,23,42,.85);color:#94a3b8;padding:6px 10px;border-radius:8px;font-size:12px;border:1px solid #475569">Nessun temporale in quest\'area</div>',
+            iconSize: [220, 30],
+            iconAnchor: [110, 15]
+          })
+        }).addTo(group);
+      }
+      lightningLayer = group.addTo(map);
+      document.getElementById("timestamp").textContent =
+        "Fulmini / temporali · " + new Date(openMeteoHourly.time[hi]).toLocaleString("it-IT");
+      updateForecastChip(hi);
+    }
+
+    function applyLayer(kind) {
+      currentLayerKind = kind;
+      document.querySelectorAll("#layer-nav button").forEach(b => {
+        b.classList.toggle("active", b.dataset.layer === kind);
+      });
+      document.getElementById("legend").classList.toggle("visible",
+        kind === "wr" || kind === "rr" || kind === "sat");
+
+      if (kind === "wr" || kind === "rr") {
+        frames = buildFrames(apiData);
+        document.getElementById("time-slider").max = Math.max(0, frames.length - 1);
+        showRadarFrame(frameIndex);
+      } else if (kind === "sat") {
+        showSatFrame(frameIndex);
+      } else if (kind === "tr") {
+        drawTempLayer();
+      } else if (kind === "gr") {
+        drawWindLayer();
+      } else if (kind === "lr") {
+        drawLightningLayer();
+      }
+    }
+
+    function stepFrame(delta) {
+      if (currentLayerKind === "tr" || currentLayerKind === "gr" || currentLayerKind === "lr") {
+        frameIndex = Math.max(0, Math.min((openMeteoHourly?.time.length || 1) - 1, frameIndex + delta));
+        applyLayer(currentLayerKind);
+        return;
+      }
+      if (!frames.length) return;
+      frameIndex = (frameIndex + delta + frames.length) % frames.length;
+      if (currentLayerKind === "sat") showSatFrame(frameIndex);
+      else showRadarFrame(frameIndex);
+    }
+
+    function playLoop() {
+      if (!playing) return;
+      stepFrame(1);
+      animTimer = setTimeout(playLoop, ANIMATION_MS);
+    }
+
+    function stopPlay() {
+      playing = false;
+      clearTimeout(animTimer);
+      document.getElementById("btn-play").textContent = "▶";
+      document.getElementById("btn-play").classList.remove("active-play");
+    }
+
+    function startPlay() {
+      playing = true;
+      document.getElementById("btn-play").textContent = "⏸";
+      document.getElementById("btn-play").classList.add("active-play");
+      clearTimeout(animTimer);
+      playLoop();
+    }
+
+    async function loadRainViewer() {
+      const res = await fetch(RAINVIEWER_API);
+      if (!res.ok) throw new Error("RainViewer API");
+      apiData = await res.json();
+      frames = buildFrames(apiData);
+      const slider = document.getElementById("time-slider");
+      slider.max = Math.max(0, frames.length - 1);
+      frameIndex = Math.max(0, frames.length - 1);
+      slider.value = frameIndex;
+      clearCache();
+      applyLayer(currentLayerKind);
+      setStatus(`Radar mondiale · ${frames.length} fotogrammi (ultime 2h + previsione) · sposta la mappa ovunque`);
+      updateTimestamp();
+    }
+
+    function initMap() {
+      map = L.map("map", {
+        zoomControl: true,
+        maxZoom: 16,
+        minZoom: 2,
+        worldCopyJump: true
+      }).setView(PLACES.world.center, PLACES.world.zoom);
+
+      baseLayers.osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap",
+        maxZoom: 19
+      });
+      baseLayers.satellite = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "© Esri", maxZoom: 18 }
+      );
+      baseLayers.google = L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        { attribution: "© Google Maps", maxZoom: 20 }
+      );
+      const mapImg = "mappa_santateresa.png";
+      localOverlay = L.imageOverlay(mapImg, LOCAL_BOUNDS, { opacity: 1 });
+      baseLayers.local = L.layerGroup([baseLayers.satellite, localOverlay]);
+
+      baseLayers.satellite.addTo(map);
+
+      marker = L.marker(PLACES.world.center, {
+        draggable: true,
+        title: "Punto selezionato",
+        icon: L.divIcon({
+          html: '<div style="background:#e53935;width:14px;height:14px;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.5)"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        })
+      }).addTo(map);
+
+      marker.on("dragend", () => {
+        const p = marker.getLatLng();
+        setFocus(p.lat, p.lng, "Punto selezionato");
+        scheduleGridRefresh();
+      });
+
+      map.on("click", e => {
+        setFocus(e.latlng.lat, e.latlng.lng, "Punto sulla mappa");
+        marker.setLatLng(e.latlng);
+      });
+
+      map.on("movestart", () => {
+        if (currentLayerKind === "wr" || currentLayerKind === "rr") clearCache();
+      });
+
+      map.on("moveend", () => {
+        updateLocationChip();
+        scheduleGridRefresh();
+      });
+
+      const geocoder = L.Control.Geocoder.nominatim({ geocodingQueryParams: { limit: 5 } });
+      L.Control.geocoder({ geocoder, defaultMarkGeocode: false, position: "topright", placeholder: "Cerca…" })
+        .on("markgeocode", e => {
+          const c = e.geocode.center;
+          const name = e.geocode.name;
+          map.setView(c, Math.max(map.getZoom(), 8));
+          setFocus(c.lat, c.lng, name);
+          marker.setLatLng(c);
+          scheduleGridRefresh();
+        })
+        .addTo(map);
+
+      document.querySelectorAll(".quick-places button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const p = PLACES[btn.dataset.place];
+          if (!p) return;
+          map.setView(p.center, p.zoom);
+          setFocus(p.center[0], p.center[1], p.name);
+          marker.setLatLng(p.center);
+          if (btn.dataset.place === "santateresa") {
+            document.getElementById("basemap-select").value = "local";
+            Object.values(baseLayers).forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+            baseLayers.local.addTo(map);
+          }
+          scheduleGridRefresh();
+        });
+      });
+
+      const searchInput = document.getElementById("search-box");
+      searchInput.addEventListener("keydown", e => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        geocoder.geocode(searchInput.value, results => {
+          if (!results || !results.length) {
+            setStatus("Luogo non trovato. Prova un altro nome.");
+            return;
+          }
+          const r = results[0];
+          map.setView(r.center, Math.max(map.getZoom(), 8));
+          setFocus(r.center.lat, r.center.lng, r.name);
+          marker.setLatLng(r.center);
+          scheduleGridRefresh();
+        });
+      });
+    }
+
+    document.getElementById("layer-nav").addEventListener("click", e => {
+      const btn = e.target.closest("button[data-layer]");
+      if (!btn) return;
+      applyLayer(btn.dataset.layer);
+    });
+
+    document.getElementById("btn-play").addEventListener("click", () => {
+      if (playing) stopPlay(); else startPlay();
+    });
+    document.getElementById("btn-prev").addEventListener("click", () => { stopPlay(); stepFrame(-1); });
+    document.getElementById("btn-next").addEventListener("click", () => { stopPlay(); stepFrame(1); });
+
+    document.getElementById("time-slider").addEventListener("input", e => {
+      stopPlay();
+      frameIndex = parseInt(e.target.value, 10);
+      if (currentLayerKind === "sat") showSatFrame(frameIndex);
+      else if (currentLayerKind === "wr" || currentLayerKind === "rr") showRadarFrame(frameIndex);
+      else applyLayer(currentLayerKind);
+    });
+
+    document.getElementById("opacity-slider").addEventListener("input", () => {
+      const o = getOpacity();
+      if (radarLayer) radarLayer.setOpacity(o);
+      if (satelliteLayer) satelliteLayer.setOpacity(o);
+    });
+
+    document.getElementById("basemap-select").addEventListener("change", e => {
+      Object.values(baseLayers).forEach(l => { if (map.hasLayer(l)) map.removeLayer(l); });
+      baseLayers[e.target.value].addTo(map);
+      marker.bringToFront();
+    });
+
+    document.getElementById("legend-btn").addEventListener("click", () => {
+      document.getElementById("legend").classList.toggle("visible");
+    });
+
+    document.getElementById("locate-btn").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        setStatus("GPS non disponibile su questo browser.");
+        return;
+      }
+      setStatus("Rilevamento posizione…");
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          map.setView([lat, lng], 10);
+          setFocus(lat, lng, "La tua posizione");
+          marker.setLatLng([lat, lng]);
+          scheduleGridRefresh();
+        },
+        () => setStatus("Impossibile ottenere la posizione GPS."),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    document.getElementById("refresh-grid-btn").addEventListener("click", () => {
+      fetchOpenMeteoGrid();
+    });
+
+    async function boot() {
+      initMap();
+      setFocus(PLACES.world.center[0], PLACES.world.center[1], "Mondo");
+      try {
+        await loadRainViewer();
+        await fetchOpenMeteoGrid();
+        startPlay();
+      } catch (err) {
+        console.error(err);
+        setStatus("Errore caricamento dati. Controlla la connessione internet.");
+        document.getElementById("timestamp").textContent = "Dati non disponibili";
+      }
+      setInterval(loadRainViewer, REFRESH_API_MS);
+    }
+
+    function updateViewportHeight() {
+      // Fix mobile address-bar jump (Safari/Chrome)
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+      // Ensure Leaflet recalculates map size after viewport changes
+      if (map) map.invalidateSize({ animate: false });
+    }
+
+    // Run early and on all viewport changes
+    updateViewportHeight();
+    window.addEventListener("resize", updateViewportHeight, { passive: true });
+    window.addEventListener("orientationchange", () => setTimeout(updateViewportHeight, 250), { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", updateViewportHeight, { passive: true });
+    }
+
+    boot();
+  </script>
+</body>
+</html>

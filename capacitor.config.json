@@ -1,0 +1,43 @@
+{
+  "appId": "com.thefinalradar.app",
+  "appName": "The Final Radar",
+  "webDir": "./",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0f172a",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "androidSpinnerStyle": "large",
+      "iosSplashStyle": "default",
+      "iosSpinnerStyle": "large",
+      "spinnerColor": "#e53935",
+      "showSpinner": true,
+      "androidSplashResourceName": "splash",
+      "androidSplashFitMode": "COVER",
+      "spinnerStyle": "default"
+    },
+    "StatusBar": {
+      "style": "DARK"
+    },
+    "App": {
+      "title": "The Final Radar (T.F.R)",
+      "overrideUserAgent": "TheFinalRadar/1.0"
+    }
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "path/to/your/keystore.jks",
+      "keystoreAlias": "your-alias",
+      "keystorePassword": "your-password",
+      "keystoreAliasPassword": "your-alias-password"
+    }
+  },
+  "ios": {
+    "scheme": "thefinalradar"
+  }
+}
