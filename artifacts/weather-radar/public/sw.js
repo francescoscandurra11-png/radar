@@ -1,8 +1,9 @@
-// TFR Weather Pro — Service Worker
+// The Final Radar — Service Worker
 const CACHE = 'tfr-weather-v1';
+const SCOPE = self.registration.scope;
 const STATIC = [
-  '/',
-  '/index.html',
+  SCOPE,
+  SCOPE + 'index.html',
 ];
 
 self.addEventListener('install', (e) => {
