@@ -1,67 +1,67 @@
-# TFR Weather
+# Radar Meteo Pro
 
-Professional weather radar app with worldwide coverage, forecasts and interactive maps.
+App meteo professionale con radar mondiale, previsioni e mappe interattive.
 
-## 🌧️ Features
+## 🌧️ Caratteristiche
 
-- **Worldwide Weather Radar**: Real-time precipitation with animation
-- **Google Maps and OpenStreetMap**: Multiple map options
-- **Detailed Data**: Temperature, wind, lightning, satellite
-- **Location**: Santa Teresa di Riva with local map
-- **Responsive Design**: Optimized for all devices
-- **PWA Ready**: Installable as native app
+- **Radar meteo mondiale**: Precipitazioni in tempo reale con animazione
+- **Google Maps e OpenStreetMap**: Multiple opzioni cartografiche
+- **Dati dettagliati**: Temperature, vento, fulmini, satellite
+- **Localizzazione**: Santa Teresa di Riva con mappa locale
+- **Responsive Design**: Ottimizzato per tutti i dispositivi
+- **PWA Ready**: Installabile come app nativa
 
-## 🚀 Installation
+## 🚀 Installazione
 
-### As PWA (Progressive Web App)
-1. Open `the_final_radar.html` in your browser
-2. Click the "Install" icon in the address bar
-3. Follow your browser's instructions
+### Come PWA (Progressive Web App)
+1. Apri `the_final_radar.html` nel browser
+2. Clicca sull'icona "Installa" nella barra degli indirizzi
+3. Segui le istruzioni del tuo browser
 
-### Locally
-1. Clone the repository
-2. Open `the_final_radar.html` in your browser
-3. That's it! No installation required
+### Localmente
+1. Clona il repository
+2. Apri `the_final_radar.html` nel browser
+3. È tutto! Nessuna installazione richiesta
 
-## 📱 Icon Generation
+## 📱 Generazione Icone
 
-To generate icons for PWA, use one of the following methods:
+Per generare le icone per la PWA, usa uno dei seguenti metodi:
 
-### Method 1: HTML (Easiest)
-1. Open `simple-icon-generator.html` in your browser
-2. Click the "Download" buttons for each icon
-3. Save files to the project folder
+### Metodo 1: HTML (Più semplice)
+1. Apri `simple-icon-generator.html` nel browser
+2. Clicca sui bottoni "Scarica" per ogni icona
+3. Salva i file nella cartella del progetto
 
-### Method 2: PowerShell (Windows)
+### Metodo 2: PowerShell (Windows)
 ```powershell
 powershell -ExecutionPolicy Bypass -File create-icons.ps1
 ```
 
-### Method 3: Node.js
+### Metodo 3: Node.js
 ```bash
 npm install canvas
 node generate-icons.js
 ```
 
-## 🛠️ Technologies
+## 🛠️ Tecnologie
 
-- **Leaflet.js**: Interactive maps
-- **RainViewer API**: Weather radar data
-- **Open-Meteo**: Weather forecasts
-- **PWA**: Progressive Web App with service worker
-- **Google Maps**: Google Maps integration (optional)
+- **Leaflet.js**: Mappe interattive
+- **RainViewer API**: Dati radar meteo
+- **Open-Meteo**: Previsioni meteo
+- **PWA**: Progressive Web App con service worker
+- **Google Maps**: Integrazione mappe Google (opzionale)
 
-## 📄 License
+## 📄 Licenza
 
-This project is based on Santa Teresa Radar with improvements for responsive design and PWA functionality.
+Questo progetto è basato su Santa Teresa Radar con miglioramenti per responsive design e funzionalità PWA.
 
-## 🔗 Links
+## 🔗 Link
 
 - **GitHub**: https://github.com/francescoscandurra11-png/radar
-- **Live Demo**: (to be configured)
+- **Live Demo**: https://francescoscandurra1-png.github.io/radar/the_final_radar.html
 - **RainViewer**: https://www.rainviewer.com/
 - **Open-Meteo**: https://open-meteo.com/
 
-## 📧 Contact
+## 📧 Contatto
 
-For issues or suggestions, open an issue on GitHub.
+Per problemi o suggerimenti, apri una issue su GitHub.

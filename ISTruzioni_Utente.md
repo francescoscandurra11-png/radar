@@ -2,7 +2,7 @@
 
 ## ✅ HO GIÀ FATTO:
 - ✅ Configurato manifest.json con icona Copilot_20260526_201904.png
-- ✅ Rinominato app in "TFR Weather"
+- ✅ Rinominato app in "Radar Meteo Pro"
 - ✅ Ottimizzato design per telefono (tutte le dimensioni)
 - ✅ Aggiornato the_final_radar.html
 - ✅ Creato .nojekyll per GitHub Pages
@@ -37,7 +37,7 @@
 
 ## 🎉 RISULTATO:
 
-- **Nome App**: TFR Weather
+- **Nome App**: Radar Meteo Pro
 - **Costo**: €0
 - **App installabile** su Android, iOS, Desktop
 - **Tua icona**: Copilot_20260526_201904.png

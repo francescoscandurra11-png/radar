@@ -3,7 +3,7 @@
 ## ✅ MODIFICHE COMPLETATE
 
 ### 📱 NOME APP
-- ✅ Cambiato da "The Final Radar (T.F.R)" a **"TFR Weather"**
+- ✅ Cambiato da "The Final Radar (T.F.R)" a **"Radar Meteo Pro"**
 - ✅ Aggiornato in: manifest.json, the_final_radar.html, README.md
 
 ### 📱 OTTIMIZZAZIONE TELEFONO
@@ -48,7 +48,7 @@ Aspetta 2 minuti e il tuo **TFR Weather** sarà online!
 
 ## 🌟 CARATTERISTICHE FINALI
 
-- **Nome**: TFR Weather
+- **Nome**: Radar Meteo Pro
 - **Icona**: Tua icona Copilot_20260526_201904.png
 - **Ottimizzato**: Perfetto per telefono
 - **Costo**: €0
