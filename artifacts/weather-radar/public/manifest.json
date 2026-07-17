@@ -1,0 +1,41 @@
+{
+  "name": "The Final Radar",
+  "short_name": "Final Radar",
+  "description": "Radar meteo professionale con previsioni orarie e settimanali in italiano",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "orientation": "any",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["weather", "navigation"],
+  "shortcuts": [
+    {
+      "name": "Previsioni Settimana",
+      "short_name": "Settimana",
+      "url": "?panel=weekly",
+      "description": "Apri le previsioni settimanali"
+    },
+    {
+      "name": "Radar Live",
+      "short_name": "Radar",
+      "url": "?layer=radar",
+      "description": "Visualizza radar meteo in tempo reale"
+    }
+  ]
+}
