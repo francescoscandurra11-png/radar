@@ -177,25 +177,25 @@
 .city-temp-name,
 .city-wind-speed,
 .city-wind-name {
-  color: #ffffff;
   font-weight: 800;
   font-family: Inter, system-ui, sans-serif;
-  /* contorno nero come nell'immagine Tunisi */
-  -webkit-text-stroke: 3px #000;
+  -webkit-text-stroke: 3.5px #000;
   paint-order: stroke fill;
   text-shadow:
     -1px -1px 0 #000,
     1px -1px 0 #000,
     -1px 1px 0 #000,
     1px 1px 0 #000,
-    0 2px 4px rgba(0, 0, 0, 0.85);
+    0 2px 5px rgba(0, 0, 0, 0.9);
 }
 
 .map-data-value,
 .city-temp-value,
 .city-wind-speed {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.01em;
+  /* default; inline style may override with heat color */
+  color: #ffffff;
 }
 
 .map-data-name,
@@ -204,6 +204,11 @@
   font-size: 12px;
   font-weight: 700;
   margin-top: 1px;
+  color: #ffffff;
+}
+
+.color-field-canvas {
+  z-index: 350 !important;
 }
 
 .severe-pulse {

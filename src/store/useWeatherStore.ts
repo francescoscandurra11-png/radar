@@ -48,7 +48,14 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
     tornado: false,
   },
   toggleLayer: (layer) =>
-    set((state) => ({ layers: { ...state.layers, [layer]: !state.layers[layer] } })),
+    set((state) => {
+      const next = !state.layers[layer];
+      // quando attivi vento/temperature, spegni l'altro layer colore per chiarezza
+      const layers = { ...state.layers, [layer]: next };
+      if (next && layer === 'wind') layers.temperature = false;
+      if (next && layer === 'temperature') layers.wind = false;
+      return { layers };
+    }),
     
   mapCenter: [20, 0],
   mapZoom: 2,

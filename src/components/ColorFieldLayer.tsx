@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useMap, useMapEvents } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
+import { useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { MAJOR_CITIES } from '../hooks/useCityTemperatures';
+import type { CityWind } from '../hooks/useCityWinds';
+import type { CityTemperature } from '../hooks/useCityTemperatures';
 
 export type FieldMode = 'temperature' | 'wind';
 
@@ -10,87 +14,33 @@ interface GridPoint {
   dir?: number;
 }
 
-function tempColor(t: number): [number, number, number, number] {
-  // yellow → orange → red → magenta (come mappa termica)
-  if (t < 5) return [59, 130, 246, 160];
-  if (t < 12) return [34, 197, 94, 165];
-  if (t < 18) return [163, 230, 53, 170];
-  if (t < 24) return [250, 204, 21, 175];
-  if (t < 28) return [249, 115, 22, 185];
-  if (t < 32) return [239, 68, 68, 195];
-  if (t < 36) return [220, 38, 38, 205];
-  if (t < 40) return [219, 39, 119, 215];
-  return [192, 38, 211, 225];
+export function tempRgb(t: number): [number, number, number] {
+  if (t < 8) return [56, 189, 248];
+  if (t < 16) return [74, 222, 128];
+  if (t < 22) return [250, 204, 21];
+  if (t < 28) return [251, 146, 60];
+  if (t < 33) return [239, 68, 68];
+  if (t < 38) return [225, 29, 72];
+  return [217, 70, 239];
 }
 
-function windColor(kmh: number): [number, number, number, number] {
-  // verde → giallo → arancio (come mappa vento)
-  if (kmh < 8) return [34, 197, 94, 140];
-  if (kmh < 15) return [74, 222, 128, 155];
-  if (kmh < 25) return [163, 230, 53, 165];
-  if (kmh < 35) return [250, 204, 21, 180];
-  if (kmh < 50) return [249, 115, 22, 195];
-  return [239, 68, 68, 210];
+export function windRgb(kmh: number): [number, number, number] {
+  if (kmh < 8) return [22, 163, 74];
+  if (kmh < 15) return [74, 222, 128];
+  if (kmh < 22) return [163, 230, 53];
+  if (kmh < 30) return [250, 204, 21];
+  if (kmh < 40) return [249, 115, 22];
+  return [239, 68, 68];
 }
 
-function lerpColor(
-  a: [number, number, number, number],
-  b: [number, number, number, number],
-  t: number
-): [number, number, number, number] {
-  const u = Math.max(0, Math.min(1, t));
-  return [
-    a[0] + (b[0] - a[0]) * u,
-    a[1] + (b[1] - a[1]) * u,
-    a[2] + (b[2] - a[2]) * u,
-    a[3] + (b[3] - a[3]) * u,
-  ];
+export function windLabelColor(kmh: number): string {
+  const [r, g, b] = windRgb(kmh);
+  return `rgb(${r},${g},${b})`;
 }
 
-async function fetchGrid(
-  lats: number[],
-  lons: number[],
-  mode: FieldMode,
-  tempMode: 'min' | 'max'
-): Promise<GridPoint[]> {
-  const points: GridPoint[] = [];
-  const chunk = 40;
-
-  for (let i = 0; i < lats.length; i += chunk) {
-    const la = lats.slice(i, i + chunk);
-    const lo = lons.slice(i, i + chunk);
-    const params =
-      mode === 'temperature'
-        ? `current=temperature_2m&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`
-        : `current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh`;
-
-    try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${la.join(',')}&longitude=${lo.join(',')}&${params}`;
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      const rows = Array.isArray(data) ? data : [data];
-
-      rows.forEach((row: any, idx: number) => {
-        const lat = la[idx];
-        const lon = lo[idx];
-        if (mode === 'temperature') {
-          const current = row.current?.temperature_2m ?? row.current_weather?.temperature;
-          const max = row.daily?.temperature_2m_max?.[0] ?? current;
-          const min = row.daily?.temperature_2m_min?.[0] ?? current;
-          const value = tempMode === 'min' ? min : max;
-          if (typeof value === 'number') points.push({ lat, lon, value });
-        } else {
-          const speed = row.current?.wind_speed_10m ?? 0;
-          const dir = row.current?.wind_direction_10m ?? 0;
-          points.push({ lat, lon, value: speed, dir });
-        }
-      });
-    } catch {
-      /* skip batch */
-    }
-  }
-  return points;
+export function tempLabelColor(t: number): string {
+  const [r, g, b] = tempRgb(t);
+  return `rgb(${r},${g},${b})`;
 }
 
 function idw(lat: number, lon: number, pts: GridPoint[]): GridPoint | null {
@@ -99,16 +49,9 @@ function idw(lat: number, lon: number, pts: GridPoint[]): GridPoint | null {
   let den = 0;
   let dirX = 0;
   let dirY = 0;
-  let nearest = pts[0];
-  let nearestD = Infinity;
-
   for (const p of pts) {
-    const d2 = (p.lat - lat) ** 2 + (p.lon - lon) ** 2;
-    if (d2 < nearestD) {
-      nearestD = d2;
-      nearest = p;
-    }
-    const w = 1 / Math.max(d2, 1e-6);
+    const d2 = (p.lat - lat) ** 2 + ((p.lon - lon) * Math.cos((lat * Math.PI) / 180)) ** 2;
+    const w = 1 / Math.max(d2, 1e-5);
     num += p.value * w;
     den += w;
     if (p.dir != null) {
@@ -117,192 +60,272 @@ function idw(lat: number, lon: number, pts: GridPoint[]): GridPoint | null {
       dirY += Math.cos(rad) * w;
     }
   }
-  const dir =
-    den > 0 ? ((Math.atan2(dirX / den, dirY / den) * 180) / Math.PI + 360) % 360 : nearest.dir;
-  return { lat, lon, value: num / den, dir };
+  return {
+    lat,
+    lon,
+    value: num / den,
+    dir: den > 0 ? ((Math.atan2(dirX / den, dirY / den) * 180) / Math.PI + 360) % 360 : 0,
+  };
+}
+
+async function fetchPoint(
+  lat: number,
+  lon: number,
+  mode: FieldMode,
+  tempMode: 'min' | 'max'
+): Promise<GridPoint | null> {
+  try {
+    const q =
+      mode === 'temperature'
+        ? `current=temperature_2m&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`
+        : `current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh`;
+    const res = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&${q}`
+    );
+    if (!res.ok) return null;
+    const row = await res.json();
+    if (mode === 'temperature') {
+      const cur = row.current?.temperature_2m;
+      const max = row.daily?.temperature_2m_max?.[0] ?? cur;
+      const min = row.daily?.temperature_2m_min?.[0] ?? cur;
+      const value = tempMode === 'min' ? min : max;
+      return typeof value === 'number' ? { lat, lon, value } : null;
+    }
+    return {
+      lat,
+      lon,
+      value: Number(row.current?.wind_speed_10m ?? 0),
+      dir: Number(row.current?.wind_direction_10m ?? 0),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function citiesToPoints(
+  seedCities: Array<CityWind | CityTemperature> | undefined,
+  tempMode: 'min' | 'max'
+): GridPoint[] {
+  if (!seedCities?.length) return [];
+  const out: GridPoint[] = [];
+  for (const c of seedCities) {
+    if ('speed' in c && typeof c.speed === 'number') {
+      out.push({ lat: c.lat, lon: c.lon, value: c.speed, dir: c.direction });
+    } else if ('temp' in c) {
+      out.push({
+        lat: c.lat,
+        lon: c.lon,
+        value: tempMode === 'min' ? c.tempMin : c.tempMax,
+      });
+    }
+  }
+  return out;
 }
 
 interface Props {
   mode: FieldMode;
   opacity?: number;
   tempMode?: 'min' | 'max';
-  onGrid?: (pts: GridPoint[]) => void;
+  seedCities?: Array<CityWind | CityTemperature>;
 }
 
 export default function ColorFieldLayer({
   mode,
-  opacity = 0.72,
+  opacity = 0.85,
   tempMode = 'max',
-  onGrid,
+  seedCities,
 }: Props) {
   const map = useMap();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pointsRef = useRef<GridPoint[]>([]);
-  const abortRef = useRef(0);
-  const particlesRef = useRef<{ x: number; y: number; life: number; age: number }[]>([]);
-  const rafRef = useRef(0);
+  const drawRef = useRef<(() => void) | null>(null);
 
-  const paintHeat = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const size = map.getSize();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = size.x * dpr;
-    canvas.height = size.y * dpr;
-    canvas.style.width = `${size.x}px`;
-    canvas.style.height = `${size.y}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, size.x, size.y);
-
-    const pts = pointsRef.current;
-    if (!pts.length) return;
-
-    const step = Math.max(10, Math.floor(18 - map.getZoom()));
-    const cell = step * 1.65;
-
-    for (let y = 0; y < size.y; y += step) {
-      for (let x = 0; x < size.x; x += step) {
-        const ll = map.containerPointToLatLng([x + step / 2, y + step / 2]);
-        const sample = idw(ll.lat, ll.lng, pts);
-        if (!sample) continue;
-        const rgba = mode === 'temperature' ? tempColor(sample.value) : windColor(sample.value);
-        const [r, g, b, a] = rgba;
-        ctx.fillStyle = `rgba(${r|0},${g|0},${b|0},${(a / 255) * opacity})`;
-        ctx.beginPath();
-        ctx.arc(x + step / 2, y + step / 2, cell, 0, Math.PI * 2);
-        ctx.fill();
-      }
+  // Update seed points when city data arrives (without remounting canvas)
+  useEffect(() => {
+    const seeded = citiesToPoints(seedCities, tempMode);
+    if (seeded.length) {
+      pointsRef.current = seeded;
+      drawRef.current?.();
     }
-  }, [map, mode, opacity]);
-
-  const loadGrid = useCallback(async () => {
-    const token = ++abortRef.current;
-    const bounds = map.getBounds().pad(0.08);
-    const zoom = map.getZoom();
-    const cols = zoom < 4 ? 5 : zoom < 6 ? 7 : zoom < 9 ? 9 : 11;
-    const rows = cols;
-    const west = bounds.getWest();
-    const east = bounds.getEast();
-    const south = bounds.getSouth();
-    const north = bounds.getNorth();
-    const lats: number[] = [];
-    const lons: number[] = [];
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const lat = south + ((north - south) * (r + 0.5)) / rows;
-        const lon = west + ((east - west) * (c + 0.5)) / cols;
-        lats.push(Number(lat.toFixed(3)));
-        lons.push(Number(lon.toFixed(3)));
-      }
-    }
-
-    const pts = await fetchGrid(lats, lons, mode, tempMode);
-    if (token !== abortRef.current) return;
-    pointsRef.current = pts;
-    onGrid?.(pts);
-    paintHeat();
-  }, [map, mode, tempMode, onGrid, paintHeat]);
+  }, [seedCities, tempMode]);
 
   useEffect(() => {
-    const container = map.getContainer();
+    let cancelled = false;
+    let raf = 0;
+    const particles: { x: number; y: number; age: number; life: number }[] = [];
+
     const canvas = document.createElement('canvas');
-    canvas.style.cssText =
-      'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:350;';
-    container.appendChild(canvas);
-    canvasRef.current = canvas;
+    canvas.className = 'color-field-canvas';
+    canvas.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:450;';
 
-    loadGrid();
+    const pane = map.getPanes().overlayPane;
+    pane.appendChild(canvas);
 
-    const onMove = () => {
-      paintHeat();
-    };
+    function redrawHeat() {
+      if (cancelled) return;
+      const pts = pointsRef.current;
+      if (!pts.length) return;
+
+      const size = map.getSize();
+      const topLeft = map.containerPointToLayerPoint([0, 0]);
+      L.DomUtil.setPosition(canvas, topLeft);
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(size.x * dpr));
+      canvas.height = Math.max(1, Math.floor(size.y * dpr));
+      canvas.style.width = `${size.x}px`;
+      canvas.style.height = `${size.y}px`;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size.x, size.y);
+
+      const zoom = map.getZoom();
+      const step = Math.max(7, Math.floor(20 - zoom * 1.15));
+      const radius = step * 2.1;
+
+      for (let y = 0; y < size.y + step; y += step) {
+        for (let x = 0; x < size.x + step; x += step) {
+          const ll = map.containerPointToLatLng([x, y]);
+          const s = idw(ll.lat, ll.lng, pts);
+          if (!s) continue;
+          const [r, g, b] = mode === 'temperature' ? tempRgb(s.value) : windRgb(s.value);
+          const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          grad.addColorStop(0, `rgba(${r},${g},${b},${opacity})`);
+          grad.addColorStop(0.5, `rgba(${r},${g},${b},${opacity * 0.5})`);
+          grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    drawRef.current = redrawHeat;
+
+    async function loadDense() {
+      const bounds = map.getBounds().pad(0.1);
+      const zoom = map.getZoom();
+      const n = zoom < 4 ? 5 : zoom < 6 ? 7 : zoom < 9 ? 9 : 10;
+      const west = bounds.getWest();
+      const east = bounds.getEast();
+      const south = bounds.getSouth();
+      const north = bounds.getNorth();
+
+      const jobs: Promise<GridPoint | null>[] = [];
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          const lat = south + ((north - south) * (r + 0.5)) / n;
+          const lon = west + ((east - west) * (c + 0.5)) / n;
+          jobs.push(fetchPoint(lat, lon, mode, tempMode));
+        }
+      }
+      for (const city of MAJOR_CITIES) {
+        if (bounds.contains(L.latLng(city.lat, city.lon))) {
+          jobs.push(fetchPoint(city.lat, city.lon, mode, tempMode));
+        }
+      }
+
+      const collected = pointsRef.current.slice();
+      for (let i = 0; i < jobs.length; i += 10) {
+        if (cancelled) return;
+        const batch = await Promise.all(jobs.slice(i, i + 10));
+        for (const p of batch) if (p) collected.push(p);
+        pointsRef.current = collected;
+        redrawHeat();
+      }
+    }
+
+    function spawn(n: number) {
+      const size = map.getSize();
+      for (let i = 0; i < n; i++) {
+        particles.push({
+          x: Math.random() * size.x,
+          y: Math.random() * size.y,
+          age: 0,
+          life: 28 + Math.random() * 55,
+        });
+      }
+    }
+    if (mode === 'wind') spawn(220);
+
+    const onMove = () => redrawHeat();
     const onSettle = () => {
-      loadGrid();
+      loadDense();
     };
 
     map.on('move', onMove);
     map.on('zoom', onMove);
     map.on('moveend', onSettle);
     map.on('zoomend', onSettle);
-    map.on('resize', onSettle);
+    map.on('resize', onMove);
 
-    // wind particles over colored field
-    const spawn = (n: number) => {
-      const size = map.getSize();
-      for (let i = 0; i < n; i++) {
-        particlesRef.current.push({
-          x: Math.random() * size.x,
-          y: Math.random() * size.y,
-          life: 35 + Math.random() * 55,
-          age: 0,
-        });
-      }
-    };
-    spawn(180);
+    // initial seed from props if already available
+    const seeded = citiesToPoints(seedCities, tempMode);
+    if (seeded.length) {
+      pointsRef.current = seeded;
+      redrawHeat();
+    }
+
+    loadDense();
 
     const tick = () => {
-      if (mode === 'wind' && pointsRef.current.length && canvasRef.current) {
-        const ctx = canvasRef.current.getContext('2d');
+      if (cancelled) return;
+      if (mode === 'wind' && pointsRef.current.length) {
+        redrawHeat();
+        const ctx = canvas.getContext('2d');
         const size = map.getSize();
         if (ctx) {
-          // redraw heat then streaks
-          paintHeat();
           ctx.save();
-          ctx.globalAlpha = 0.75 * opacity;
-          ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-          ctx.lineWidth = 1.15;
           ctx.lineCap = 'round';
-          const next = [];
-          for (const p of particlesRef.current) {
+          ctx.lineWidth = 1.5;
+          const next: typeof particles = [];
+          for (const p of particles) {
             const ll = map.containerPointToLatLng([p.x, p.y]);
             const s = idw(ll.lat, ll.lng, pointsRef.current);
             if (!s) continue;
+            const [r, g, b] = windRgb(s.value);
+            ctx.strokeStyle = `rgba(${Math.min(255, r + 90)},${Math.min(255, g + 90)},${Math.min(255, b + 40)},0.95)`;
             const rad = (((s.dir ?? 0) + 180) * Math.PI) / 180;
-            const speed = Math.max(0.35, Math.min(s.value / 16, 3.4));
-            const u = Math.sin(rad) * speed;
-            const v = -Math.cos(rad) * speed;
+            const spd = Math.max(0.55, Math.min(s.value / 12, 4.2));
+            const u = Math.sin(rad) * spd;
+            const v = -Math.cos(rad) * spd;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + u, p.y + v);
+            ctx.lineTo(p.x + u * 2.4, p.y + v * 2.4);
             ctx.stroke();
             p.x += u;
             p.y += v;
             p.age += 1;
-            if (
-              p.age < p.life &&
-              p.x > -30 &&
-              p.y > -30 &&
-              p.x < size.x + 30 &&
-              p.y < size.y + 30
-            ) {
+            if (p.age < p.life && p.x > -40 && p.y > -40 && p.x < size.x + 40 && p.y < size.y + 40) {
               next.push(p);
             }
           }
-          particlesRef.current = next;
-          if (particlesRef.current.length < 160) spawn(40);
+          particles.length = 0;
+          particles.push(...next);
+          if (particles.length < 180) spawn(55);
           ctx.restore();
         }
       }
-      rafRef.current = requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      cancelled = true;
+      cancelAnimationFrame(raf);
       map.off('move', onMove);
       map.off('zoom', onMove);
       map.off('moveend', onSettle);
       map.off('zoomend', onSettle);
-      map.off('resize', onSettle);
+      map.off('resize', onMove);
       canvas.remove();
+      drawRef.current = null;
     };
-  }, [map, mode, loadGrid, paintHeat, opacity]);
+    // seedCities handled by separate effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, mode, opacity, tempMode]);
 
-  useMapEvents({});
   return null;
 }
-
-export type { GridPoint };

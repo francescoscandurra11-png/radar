@@ -8,7 +8,7 @@ import { useRainViewer } from '../hooks/useRainViewer';
 import { useCityTemperatures } from '../hooks/useCityTemperatures';
 import { useCityWinds } from '../hooks/useCityWinds';
 import { useSevereWeather } from '../hooks/useSevereWeather';
-import ColorFieldLayer from './ColorFieldLayer';
+import ColorFieldLayer, { windLabelColor, tempLabelColor } from './ColorFieldLayer';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -134,7 +134,8 @@ export default function WeatherMap() {
             key={`temp-field-${tempMode}`}
             mode="temperature"
             tempMode={tempMode}
-            opacity={Math.max(0.45, radarOpacity / 100)}
+            opacity={0.82}
+            seedCities={cities}
           />
         )}
 
@@ -142,7 +143,8 @@ export default function WeatherMap() {
           <ColorFieldLayer
             key="wind-field"
             mode="wind"
-            opacity={Math.max(0.5, radarOpacity / 100)}
+            opacity={0.85}
+            seedCities={winds}
           />
         )}
 
@@ -170,7 +172,7 @@ export default function WeatherMap() {
               icon={L.divIcon({
                 className: 'leaflet-div-icon',
                 html: `<div class="map-data-label">
-                  <div class="map-data-value">${Math.round(tempMode === 'min' ? city.tempMin : city.tempMax)}</div>
+                  <div class="map-data-value" style="color:${tempLabelColor(tempMode === 'min' ? city.tempMin : city.tempMax)}">${Math.round(tempMode === 'min' ? city.tempMin : city.tempMax)}</div>
                   <div class="map-data-name">${city.name === 'Santa Teresa di Riva' ? 'S. Teresa' : city.name}</div>
                 </div>`,
                 iconSize: [100, 44],
@@ -199,7 +201,7 @@ export default function WeatherMap() {
               icon={L.divIcon({
                 className: 'leaflet-div-icon',
                 html: `<div class="map-data-label">
-                  <div class="map-data-value">${Math.round(w.speed)} km/h</div>
+                  <div class="map-data-value" style="color:${windLabelColor(w.speed)}">${Math.round(w.speed)} km/h</div>
                   <div class="map-data-name">${w.name === 'Santa Teresa di Riva' ? 'S. Teresa' : w.name}</div>
                 </div>`,
                 iconSize: [110, 44],
