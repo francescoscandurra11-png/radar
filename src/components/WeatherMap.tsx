@@ -8,7 +8,7 @@ import { useRainViewer } from '../hooks/useRainViewer';
 import { useCityTemperatures } from '../hooks/useCityTemperatures';
 import { useCityWinds } from '../hooks/useCityWinds';
 import { useSevereWeather } from '../hooks/useSevereWeather';
-import WindParticles from './WindParticles';
+import ColorFieldLayer from './ColorFieldLayer';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -53,17 +53,6 @@ function MapController({ onView }: { onView: (lat: number, lon: number, zoom: nu
 
   return null;
 }
-
-const getTempColor = (temp: number) => {
-  if (temp < 0) return '#3b82f6';
-  if (temp < 10) return '#22c55e';
-  if (temp < 18) return '#84cc16';
-  if (temp < 24) return '#eab308';
-  if (temp < 28) return '#f97316';
-  if (temp < 34) return '#ef4444';
-  if (temp < 38) return '#e11d48';
-  return '#c026d3';
-};
 
 export default function WeatherMap() {
   const { layers, radarOpacity, playbackState, selectedLocation, mapCenter, mapZoom } = useWeatherStore();
@@ -140,8 +129,21 @@ export default function WeatherMap() {
           />
         )}
 
-        {layers.wind && winds && winds.length > 0 && (
-          <WindParticles winds={winds} opacity={radarOpacity / 100} />
+        {layers.temperature && (
+          <ColorFieldLayer
+            key={`temp-field-${tempMode}`}
+            mode="temperature"
+            tempMode={tempMode}
+            opacity={Math.max(0.45, radarOpacity / 100)}
+          />
+        )}
+
+        {layers.wind && (
+          <ColorFieldLayer
+            key="wind-field"
+            mode="wind"
+            opacity={Math.max(0.5, radarOpacity / 100)}
+          />
         )}
 
         {selectedLocation && (
@@ -167,12 +169,12 @@ export default function WeatherMap() {
               position={[city.lat, city.lon]}
               icon={L.divIcon({
                 className: 'leaflet-div-icon',
-                html: `<div class="city-temp-label" style="--glow:${getTempColor(tempMode === 'min' ? city.tempMin : city.tempMax)}">
-                  <div class="city-temp-value">${Math.round(tempMode === 'min' ? city.tempMin : city.tempMax)}</div>
-                  <div class="city-temp-name">${city.name === 'Santa Teresa di Riva' ? 'S. Teresa' : city.name.split(' ')[0]}</div>
+                html: `<div class="map-data-label">
+                  <div class="map-data-value">${Math.round(tempMode === 'min' ? city.tempMin : city.tempMax)}</div>
+                  <div class="map-data-name">${city.name === 'Santa Teresa di Riva' ? 'S. Teresa' : city.name}</div>
                 </div>`,
-                iconSize: [72, 40],
-                iconAnchor: [36, 20],
+                iconSize: [100, 44],
+                iconAnchor: [50, 22],
               })}
             >
               <Popup>
@@ -187,7 +189,7 @@ export default function WeatherMap() {
             </Marker>
           ))}
 
-        {/* Wind speed labels */}
+        {/* Wind speed labels — stile "14 km/h / Tunisi" */}
         {layers.wind &&
           winds &&
           winds.map((w) => (
@@ -196,12 +198,12 @@ export default function WeatherMap() {
               position={[w.lat, w.lon]}
               icon={L.divIcon({
                 className: 'leaflet-div-icon',
-                html: `<div class="city-wind-label">
-                  <div class="city-wind-speed">${Math.round(w.speed)} km/h</div>
-                  <div class="city-wind-name">${w.name === 'Santa Teresa di Riva' ? 'S. Teresa' : w.name.split(' ')[0]}</div>
+                html: `<div class="map-data-label">
+                  <div class="map-data-value">${Math.round(w.speed)} km/h</div>
+                  <div class="map-data-name">${w.name === 'Santa Teresa di Riva' ? 'S. Teresa' : w.name}</div>
                 </div>`,
-                iconSize: [90, 36],
-                iconAnchor: [45, 18],
+                iconSize: [110, 44],
+                iconAnchor: [55, 22],
               })}
             >
               <Popup>

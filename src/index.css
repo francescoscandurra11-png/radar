@@ -159,7 +159,8 @@
 }
 
 .city-temp-label,
-.city-wind-label {
+.city-wind-label,
+.map-data-label {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -167,33 +168,42 @@
   text-align: center;
   pointer-events: none;
   line-height: 1.05;
-  text-shadow:
-    0 0 4px rgba(0, 0, 0, 0.95),
-    0 1px 3px rgba(0, 0, 0, 0.9),
-    0 0 12px color-mix(in srgb, var(--glow, #22d3ee) 55%, transparent);
-}
-
-.city-temp-value {
-  font-size: 13px;
-  font-weight: 800;
-  color: #fff;
-  font-family: var(--font-mono);
-}
-
-.city-temp-name,
-.city-wind-name {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
+.map-data-value,
+.map-data-name,
+.city-temp-value,
+.city-temp-name,
+.city-wind-speed,
+.city-wind-name {
+  color: #ffffff;
+  font-weight: 800;
+  font-family: Inter, system-ui, sans-serif;
+  /* contorno nero come nell'immagine Tunisi */
+  -webkit-text-stroke: 3px #000;
+  paint-order: stroke fill;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 2px 4px rgba(0, 0, 0, 0.85);
+}
+
+.map-data-value,
+.city-temp-value,
 .city-wind-speed {
-  font-size: 11px;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.map-data-name,
+.city-temp-name,
+.city-wind-name {
+  font-size: 12px;
   font-weight: 700;
-  color: #e2e8f0;
-  font-family: var(--font-mono);
+  margin-top: 1px;
 }
 
 .severe-pulse {
