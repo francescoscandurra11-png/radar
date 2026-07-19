@@ -9,6 +9,7 @@ import { useCityTemperatures } from '../hooks/useCityTemperatures';
 import { useCityWinds } from '../hooks/useCityWinds';
 import { useSevereWeather } from '../hooks/useSevereWeather';
 import ColorFieldLayer, { windLabelColor, tempLabelColor } from './ColorFieldLayer';
+import BordersLayer from './BordersLayer';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -20,6 +21,15 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   shadowUrl: markerShadow,
 });
+
+function MarkerPaneBoost() {
+  const map = useMap();
+  useEffect(() => {
+    const pane = map.getPane('markerPane');
+    if (pane) pane.style.zIndex = '650';
+  }, [map]);
+  return null;
+}
 
 function MapController({ onView }: { onView: (lat: number, lon: number, zoom: number) => void }) {
   const map = useMap();
@@ -79,6 +89,29 @@ export default function WeatherMap() {
     return frames[Math.min(playbackState.frameIndex, frames.length - 1)] || frames[frames.length - 1];
   }, [rainData, playbackState.frameIndex]);
 
+  const showColorField = layers.temperature || layers.wind;
+
+  const visibleCities = useMemo(() => {
+    if (!cities?.length) return [];
+    // a zoom basso mostra meno città (meno confusione), a zoom Italia tutte
+    const maxDist = hud.zoom < 4 ? 25 : hud.zoom < 6 ? 12 : hud.zoom < 8 ? 6 : 3;
+    return cities.filter((c) => {
+      const dlat = Math.abs(c.lat - hud.lat);
+      const dlon = Math.abs(c.lon - hud.lon);
+      return dlat < maxDist && dlon < maxDist * 1.4;
+    });
+  }, [cities, hud]);
+
+  const visibleWinds = useMemo(() => {
+    if (!winds?.length) return [];
+    const maxDist = hud.zoom < 4 ? 25 : hud.zoom < 6 ? 12 : hud.zoom < 8 ? 6 : 3;
+    return winds.filter((c) => {
+      const dlat = Math.abs(c.lat - hud.lat);
+      const dlon = Math.abs(c.lon - hud.lon);
+      return dlat < maxDist && dlon < maxDist * 1.4;
+    });
+  }, [winds, hud]);
+
   return (
     <div className="absolute inset-0 h-[100dvh] w-full bg-[#05080f] z-0">
       <MapContainer
@@ -91,6 +124,7 @@ export default function WeatherMap() {
         worldCopyJump
       >
         <MapController onView={(lat, lon, zoom) => setHud({ lat, lon, zoom })} />
+        <MarkerPaneBoost />
 
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -148,6 +182,9 @@ export default function WeatherMap() {
           />
         )}
 
+        {/* Confini / margini paesi e regioni su temperature e vento */}
+        {showColorField && <BordersLayer showLabels={hud.zoom >= 5} />}
+
         {selectedLocation && (
           <Marker position={[selectedLocation.lat, selectedLocation.lon]}>
             <Popup>
@@ -162,21 +199,21 @@ export default function WeatherMap() {
           </Marker>
         )}
 
-        {/* Temperature labels — stile mappa termica */}
+        {/* Temperature labels — tutte le città visibili */}
         {layers.temperature &&
-          cities &&
-          cities.map((city) => (
+          visibleCities.map((city) => (
             <Marker
               key={`t-${city.name}-${tempMode}`}
               position={[city.lat, city.lon]}
+              zIndexOffset={800}
               icon={L.divIcon({
-                className: 'leaflet-div-icon',
+                className: 'leaflet-div-icon city-marker-icon',
                 html: `<div class="map-data-label">
                   <div class="map-data-value" style="color:${tempLabelColor(tempMode === 'min' ? city.tempMin : city.tempMax)}">${Math.round(tempMode === 'min' ? city.tempMin : city.tempMax)}</div>
                   <div class="map-data-name">${city.name === 'Santa Teresa di Riva' ? 'S. Teresa' : city.name}</div>
                 </div>`,
-                iconSize: [100, 44],
-                iconAnchor: [50, 22],
+                iconSize: [120, 48],
+                iconAnchor: [60, 24],
               })}
             >
               <Popup>
@@ -191,21 +228,21 @@ export default function WeatherMap() {
             </Marker>
           ))}
 
-        {/* Wind speed labels — stile "14 km/h / Tunisi" */}
+        {/* Wind labels */}
         {layers.wind &&
-          winds &&
-          winds.map((w) => (
+          visibleWinds.map((w) => (
             <Marker
               key={`w-${w.name}`}
               position={[w.lat, w.lon]}
+              zIndexOffset={800}
               icon={L.divIcon({
-                className: 'leaflet-div-icon',
+                className: 'leaflet-div-icon city-marker-icon',
                 html: `<div class="map-data-label">
                   <div class="map-data-value" style="color:${windLabelColor(w.speed)}">${Math.round(w.speed)} km/h</div>
                   <div class="map-data-name">${w.name === 'Santa Teresa di Riva' ? 'S. Teresa' : w.name}</div>
                 </div>`,
-                iconSize: [110, 44],
-                iconAnchor: [55, 22],
+                iconSize: [130, 48],
+                iconAnchor: [65, 24],
               })}
             >
               <Popup>

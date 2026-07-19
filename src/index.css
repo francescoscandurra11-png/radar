@@ -158,8 +158,6 @@
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-.city-temp-label,
-.city-wind-label,
 .map-data-label {
   display: flex;
   flex-direction: column;
@@ -167,8 +165,11 @@
   justify-content: center;
   text-align: center;
   pointer-events: none;
-  line-height: 1.05;
+  line-height: 1.1;
   white-space: nowrap;
+  padding: 4px 8px;
+  margin: 2px;
+  gap: 2px;
 }
 
 .map-data-value,
@@ -192,23 +193,31 @@
 .map-data-value,
 .city-temp-value,
 .city-wind-speed {
-  font-size: 14px;
-  letter-spacing: 0.01em;
-  /* default; inline style may override with heat color */
+  font-size: 15px;
+  letter-spacing: 0.02em;
   color: #ffffff;
 }
 
 .map-data-name,
 .city-temp-name,
 .city-wind-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  margin-top: 1px;
+  margin-top: 2px;
   color: #ffffff;
 }
 
 .color-field-canvas {
   z-index: 350 !important;
+}
+
+.city-marker-icon {
+  overflow: visible !important;
+}
+
+.leaflet-pane.bordersPane,
+.leaflet-pane.placeLabelsPane {
+  pointer-events: none !important;
 }
 
 .severe-pulse {
