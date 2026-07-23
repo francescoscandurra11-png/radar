@@ -50,7 +50,7 @@ export default function WeatherApp() {
       {/* ── Mobile hamburger button ── */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 bg-[#070b14]/90 backdrop-blur border border-cyan-400/25 rounded-xl flex items-center justify-center shadow-lg text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300"
+        className="md:hidden fixed top-3 left-3 z-40 w-10 h-10 bg-card/90 backdrop-blur border border-border rounded-lg flex items-center justify-center shadow-lg text-foreground hover:bg-accent/20 transition-colors"
         data-testid="button-hamburger"
         aria-label="Apri menu"
       >

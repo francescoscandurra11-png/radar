@@ -33,8 +33,7 @@ export interface HourlyForecast {
   precipitation: number[];
   weathercode: number[];
   windspeed_10m: number[];
-  relativehumidity_2m?: number[];
-  apparent_temperature?: number[];
+  relativehumidity_2m: number[];
 }
 
 export interface SevereAlert {

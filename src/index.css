@@ -65,33 +65,33 @@
   --popover-foreground: 210 15% 90%;
   --popover-border: 220 15% 20%;
   
-  --primary: 187 94% 53%;
-  --primary-foreground: 220 40% 6%;
+  --primary: 200 90% 55%;
+  --primary-foreground: 220 30% 5%;
   
-  --secondary: 220 20% 14%;
+  --secondary: 220 15% 20%;
   --secondary-foreground: 210 15% 90%;
   
-  --muted: 220 18% 12%;
-  --muted-foreground: 215 12% 62%;
+  --muted: 220 15% 15%;
+  --muted-foreground: 215 10% 65%;
   
-  --accent: 187 94% 53%;
-  --accent-foreground: 220 40% 6%;
+  --accent: 200 90% 55%;
+  --accent-foreground: 220 30% 5%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 15% 90%;
   
-  --border: 220 18% 18%;
-  --input: 220 18% 18%;
-  --ring: 187 94% 53%;
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 200 90% 55%;
   
-  --sidebar: 222 45% 5%;
+  --sidebar: 220 30% 5%;
   --sidebar-foreground: 210 15% 90%;
-  --sidebar-border: 220 20% 12%;
-  --sidebar-primary: 187 94% 53%;
-  --sidebar-primary-foreground: 220 40% 6%;
-  --sidebar-accent: 220 22% 10%;
+  --sidebar-border: 220 15% 15%;
+  --sidebar-primary: 200 90% 55%;
+  --sidebar-primary-foreground: 220 30% 5%;
+  --sidebar-accent: 220 20% 15%;
   --sidebar-accent-foreground: 210 15% 90%;
-  --sidebar-ring: 187 94% 53%;
+  --sidebar-ring: 200 90% 55%;
   
   --radius: 0.5rem;
 }
@@ -158,94 +158,7 @@
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-.map-data-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  pointer-events: none;
-  line-height: 1.1;
-  white-space: nowrap;
-  padding: 4px 8px;
-  margin: 2px;
-  gap: 2px;
-}
-
-.map-data-value,
-.map-data-name,
-.city-temp-value,
-.city-temp-name,
-.city-wind-speed,
-.city-wind-name {
-  font-weight: 800;
-  font-family: Inter, system-ui, sans-serif;
-  -webkit-text-stroke: 3.5px #000;
-  paint-order: stroke fill;
-  text-shadow:
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000,
-    0 2px 5px rgba(0, 0, 0, 0.9);
-}
-
-.map-data-value,
-.city-temp-value,
-.city-wind-speed {
-  font-size: 15px;
-  letter-spacing: 0.02em;
-  color: #ffffff;
-}
-
-.map-data-name,
-.city-temp-name,
-.city-wind-name {
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 2px;
-  color: #ffffff;
-}
-
-.color-field-canvas {
-  z-index: 350 !important;
-}
-
-.city-marker-icon {
-  overflow: visible !important;
-}
-
-.leaflet-pane.bordersPane,
-.leaflet-pane.placeLabelsPane {
-  pointer-events: none !important;
-}
-
-.severe-pulse {
-  width: 18px;
-  height: 18px;
-  border-radius: 9999px;
-  background: #ef4444;
-  border: 2px solid #fff;
-  box-shadow: 0 0 12px #ef4444;
-  animation: pulse 1.6s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.25); opacity: 0.55; }
-}
-
 .leaflet-div-icon {
   background: transparent !important;
   border: none !important;
-}
-
-/* Smooth interactive controls */
-button,
-a,
-input,
-[role='button'] {
-  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-  transition-duration: 280ms;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
