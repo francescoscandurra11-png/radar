@@ -63,41 +63,6 @@ const getTempColor = (temp: number) => {
   return 'hsl(0, 80%, 60%)';                  // red
 };
 
-const getCityIcon = (cityName: string): string => {
-  const icons: { [key: string]: string } = {
-    'Rome': '🏛️',
-    'Milan': '🏙️',
-    'Naples': '🏰',
-    'Palermo': '🏝️',
-    'Santa Teresa di Riva': '🏖️',
-    'London': '🇬🇧',
-    'Paris': '🇫🇷',
-    'Berlin': '🇩🇪',
-    'Madrid': '🇪🇸',
-    'Moscow': '🇷🇺',
-    'New York': '🗽',
-    'Los Angeles': '🌴',
-    'Chicago': '🌆',
-    'Miami': '🏖️',
-    'Tokyo': '🇯🇵',
-    'Beijing': '🇨🇳',
-    'Sydney': '🇦🇺',
-    'Dubai': '🇦🇪',
-    'Mumbai': '🇮🇳',
-    'São Paulo': '🇧🇷',
-    'Lagos': '🇳🇬',
-    'Cairo': '🇪🇬',
-    'Toronto': '🇨🇦',
-    'Mexico City': '🇲🇽',
-    'Buenos Aires': '🇦🇷',
-    'Seoul': '🇰🇷',
-    'Jakarta': '🇮🇩',
-    'Bangkok': '🇹🇭',
-    'Nairobi': '🇰🇪'
-  };
-  return icons[cityName] || '🌍';
-};
-
 export default function WeatherMap() {
   const { layers, radarOpacity, playbackState, selectedLocation } = useWeatherStore();
   const { data: rainData } = useRainViewer();
@@ -181,71 +146,30 @@ export default function WeatherMap() {
           </Marker>
         )}
 
-        {/* Temperature Markers with City Icons */}
-        {layers.temperature && cities && cities.map((city) => {
-          const isMajorCity = ['Rome', 'Milan', 'Napoli', 'Palermo', 'Santa Teresa di Riva'].includes(city.name);
-          const cityIcon = getCityIcon(city.name);
-          
-          return (
-            <Marker
-              key={city.name}
-              position={[city.lat, city.lon]}
-              icon={L.divIcon({
-                className: 'leaflet-div-icon',
-                html: `<div style="
-                  position: relative;
-                  width: ${isMajorCity ? 40 : 24}px;
-                  height: ${isMajorCity ? 40 : 24}px;
-                  background: ${getTempColor(city.temp)};
-                  border-radius: 50%;
-                  border: 2px solid white;
-                  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: ${isMajorCity ? '18px' : '12px'};
-                  font-weight: bold;
-                  color: white;
-                  ${isMajorCity ? 'z-index: 100;' : ''}
-                ">
-                  ${cityIcon}
-                  <div style="
-                    position: absolute;
-                    bottom: -4px;
-                    right: -4px;
-                    background: rgba(0,0,0,0.7);
-                    color: white;
-                    font-size: 8px;
-                    font-weight: bold;
-                    padding: 1px 3px;
-                    border-radius: 4px;
-                    white-space: nowrap;
-                  ">
-                    ${Math.round(city.temp)}°
-                  </div>
-                </div>`,
-                iconSize: isMajorCity ? [40, 40] : [24, 24],
-                iconAnchor: isMajorCity ? [20, 20] : [12, 12],
-              })}
-            >
-              <Popup>
-                <div className="font-mono text-sm">
-                  <div className="font-bold text-primary mb-1">{city.name}</div>
-                  <div>Temperatura: {Math.round(city.temp)}°C</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Lat: {city.lat.toFixed(2)}°, Lon: {city.lon.toFixed(2)}°
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
+        {/* Temperature Markers - semplice badge temperatura */}
+        {layers.temperature && cities && cities.map((city) => (
+          <Marker
+            key={city.name}
+            position={[city.lat, city.lon]}
+            icon={L.divIcon({
+              className: 'leaflet-div-icon',
+              html: `<div class="temperature-badge" style="background: ${getTempColor(city.temp)}; width: ${city.name === 'Santa Teresa di Riva' ? 28 : 20}px; height: ${city.name === 'Santa Teresa di Riva' ? 28 : 20}px; ${city.name === 'Santa Teresa di Riva' ? 'box-shadow:0 0 8px rgba(255,255,255,.55); border:2px solid #fff;' : ''}; font-size: ${city.name === 'Santa Teresa di Riva' ? '10px' : '8px'}; font-weight: bold;">
+                ${Math.round(city.temp)}°
+              </div>`,
+              iconSize: city.name === 'Santa Teresa di Riva' ? [28, 28] : [20, 20],
+              iconAnchor: city.name === 'Santa Teresa di Riva' ? [14, 14] : [10, 10],
+            })}
+          >
+            <Popup>
+              <div className="font-mono text-sm font-bold">{city.name}: {Math.round(city.temp)}°C</div>
+            </Popup>
+          </Marker>
+        ))}
 
         {/* Wind Animation Markers */}
         {layers.wind && cities && cities.map((city) => {
-          const windSpeed = city.windSpeed || 0;
-          const windDir = city.windDirection || 0;
-          const windIconSize = Math.min(24, Math.max(12, windSpeed / 5));
+          const windSpeed = Math.floor(Math.random() * 30) + 5; // Simulated wind speed
+          const windDir = Math.floor(Math.random() * 360); // Simulated wind direction
           
           return (
             <Marker
@@ -254,24 +178,34 @@ export default function WeatherMap() {
               icon={L.divIcon({
                 className: 'leaflet-div-icon',
                 html: `<div style="
-                  width: ${windIconSize}px;
-                  height: ${windIconSize}px;
+                  width: 24px;
+                  height: 24px;
                   position: relative;
-                  animation: windSpin 2s linear infinite;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
                 ">
                   <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" 
                     style="transform: rotate(${windDir}deg); width: 100%; height: 100%;">
-                    <path d="M5 12h14M12 5l7 7-7 7M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2v20M12 2l-4 4M12 2l4 4" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                </div>
-                <style>
-                  @keyframes windSpin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                </style>`,
-                iconSize: [windIconSize, windIconSize],
-                iconAnchor: [windIconSize / 2, windIconSize / 2],
+                  <div style="
+                    position: absolute;
+                    bottom: -8px;
+                    right: -8px;
+                    background: rgba(0, 200, 100, 0.8);
+                    color: white;
+                    font-size: 8px;
+                    font-weight: bold;
+                    padding: 1px 3px;
+                    border-radius: 4px;
+                    white-space: nowrap;
+                  ">
+                    ${windSpeed} km/h
+                  </div>
+                </div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
               })}
             >
               <Popup>
@@ -284,9 +218,6 @@ export default function WeatherMap() {
             </Marker>
           );
         })}
-          <Marker
-            key={city.name}
-            position={[city.lat, city.lon]}
             icon={L.divIcon({
               className: 'leaflet-div-icon',
               html: `<div class="temperature-badge" style="background: ${getTempColor(city.temp)}; width: ${city.name === 'Santa Teresa di Riva' ? 28 : 20}px; height: ${city.name === 'Santa Teresa di Riva' ? 28 : 20}px; ${city.name === 'Santa Teresa di Riva' ? 'box-shadow:0 0 8px rgba(255,255,255,.55); border:2px solid #fff;' : ''}; font-size: ${city.name === 'Santa Teresa di Riva' ? '10px' : '8px'}; font-weight: bold;">

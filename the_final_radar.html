@@ -15,54 +15,6 @@
     <script type="module" crossorigin src="/assets/index-DJyirgw6.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BdyOLoPZ.css">
     <style>
-      /* Splash Screen TFR RADAR */
-      #splash-screen {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: #0a0f1e;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        animation: fadeOut 0.5s ease-in-out 2.5s forwards;
-      }
-      @keyframes fadeOut {
-        0% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { opacity: 0; pointer-events: none; }
-      }
-      .splash-content {
-        text-align: center;
-        color: white;
-      }
-      .splash-logo {
-        font-size: 64px;
-        margin-bottom: 20px;
-      }
-      .splash-title {
-        font-size: 32px;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-      .splash-subtitle {
-        color: #22c55e;
-        font-size: 18px;
-      }
-      .radar-sweep {
-        width: 128px;
-        height: 128px;
-        border-radius: 50%;
-        border: 3px solid #22c55e;
-        background: conic-gradient(from 0deg, transparent 0deg, rgba(34, 197, 94, 0.5) 180deg, transparent 360deg);
-        animation: spin 2s linear infinite;
-        margin: 24px auto;
-      }
-      @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      
       /* Install Popup */
       #install-popup {
         position: fixed;
@@ -90,16 +42,6 @@
     </style>
   </head>
   <body>
-    <!-- Splash Screen TFR RADAR -->
-    <div id="splash-screen">
-      <div class="splash-content">
-        <div class="splash-logo">🌀</div>
-        <h1 class="splash-title">TFR RADAR</h1>
-        <p class="splash-subtitle">The Final Radar · Sistema Meteo Avanzato</p>
-        <div class="radar-sweep"></div>
-      </div>
-    </div>
-
     <!-- Install Popup -->
     <div id="install-popup">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">

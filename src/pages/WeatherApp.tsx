@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useEffect, useState } from 'react';
-import { Menu, Home, Download, X } from 'lucide-react';
+import { Menu, Home, X } from 'lucide-react';
 import WeatherMap from '../components/WeatherMap';
 import Sidebar from '../components/Sidebar';
 import TimelineBar from '../components/TimelineBar';
@@ -10,17 +10,8 @@ import { useWeatherStore } from '../store/useWeatherStore';
 
 export default function WeatherApp() {
   const { sidebarOpen, setSidebarOpen } = useWeatherStore();
-  const [showSplash, setShowSplash] = useState(true);
   const [showInstallPopup, setShowInstallPopup] = useState(false);
   const [showHomeMenu, setShowHomeMenu] = useState(false);
-
-  // Splash screen
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Install popup after 30 seconds
   useEffect(() => {
@@ -120,42 +111,6 @@ export default function WeatherApp() {
                 Home
               </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Splash Screen TFR RADAR ── */}
-      <AnimatePresence>
-        {showSplash && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-[100] bg-[#0a0f1e] flex flex-col items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="text-center"
-            >
-              <div className="text-6xl mb-4">🌀</div>
-              <h1 className="text-4xl font-bold text-white mb-2">TFR RADAR</h1>
-              <p className="text-blue-400 text-lg">The Final Radar · Sistema Meteo Avanzato</p>
-              
-              {/* Radar sweep animation */}
-              <motion.div
-                className="w-32 h-32 mx-auto mt-6"
-                style={{
-                  borderRadius: '50%',
-                  background: 'conic-gradient(from 0deg, transparent 0deg, rgba(34, 197, 94, 0.5) 180deg, transparent 360deg)',
-                  border: '2px solid rgba(34, 197, 94, 0.8)'
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              />
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
