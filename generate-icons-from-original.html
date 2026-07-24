@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Genera Icone da Copilot_20260526_201904.png</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .icon-preview { margin: 10px; display: inline-block; }
+        canvas { border: 1px solid #ccc; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <h1>Genera Icone da Immagine Originale</h1>
+    <p>Carica la tua icona Copilot_20260526_201904.png e genera le diverse dimensioni.</p>
+    
+    <input type="file" id="imageInput" accept="image/png">
+    <br><br>
+    
+    <button onclick="generateIcons()">Genera Tutte le Icone</button>
+    
+    <div id="preview"></div>
+    
+    <script>
+        function generateIcons() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+            if (!file) {
+                alert('Seleziona prima l\'immagine!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const sizes = [96, 128, 144, 152, 192, 512];
+                    const preview = document.getElementById('preview');
+                    preview.innerHTML = '';
+                    
+                    sizes.forEach(size => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        canvas.className = 'icon-preview';
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, size, size);
+                        
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = `<p>${size}x${size}</p>`;
+                        wrapper.appendChild(canvas);
+                        
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.textContent = `Scarica ${size}x${size}`;
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.download = `icon-${size}.png`;
+                            link.href = canvas.toDataURL('image/png');
+                            link.click();
+                        };
+                        
+                        wrapper.appendChild(downloadBtn);
+                        preview.appendChild(wrapper);
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>

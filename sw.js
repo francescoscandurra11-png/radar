@@ -1,38 +1,26 @@
-const CACHE = 'tfr-weather-v2';
-const BASE = '/radar/';
-const STATIC = [
-  BASE,
-  BASE + 'the_final_radar.html',
-  BASE + 'index.html',
+// Service Worker for TFR RADAR PWA
+const CACHE_NAME = 'tfr-radar-v1';
+const urlsToCache = [
+  '/the_final_radar.html',
+  '/manifest.json',
+  '/icons/icon-96.png',
+  '/icons/icon-128.png',
+  '/icons/icon-144.png',
+  '/icons/icon-152.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(STATIC).catch(() => {})));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-  if (
-    url.hostname.includes('rainviewer') ||
-    url.hostname.includes('open-meteo') ||
-    url.hostname.includes('opensky') ||
-    url.hostname.includes('nominatim') ||
-    url.hostname.includes('arcgisonline') ||
-    url.hostname.includes('tilecache')
-  ) {
-    return;
-  }
-  e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => response || fetch(event.request))
   );
 });

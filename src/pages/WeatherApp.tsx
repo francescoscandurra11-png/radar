@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import { AnimatePresence, motion, useEffect, useState } from 'react';
+import { Menu, Home, Download, X } from 'lucide-react';
 import WeatherMap from '../components/WeatherMap';
 import Sidebar from '../components/Sidebar';
 import TimelineBar from '../components/TimelineBar';
@@ -10,6 +10,35 @@ import { useWeatherStore } from '../store/useWeatherStore';
 
 export default function WeatherApp() {
   const { sidebarOpen, setSidebarOpen } = useWeatherStore();
+  const [showSplash, setShowSplash] = useState(true);
+  const [showInstallPopup, setShowInstallPopup] = useState(false);
+  const [showHomeMenu, setShowHomeMenu] = useState(false);
+
+  // Splash screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Install popup after 30 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowInstallPopup(true);
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleInstall = () => {
+    if ('deferredPrompt' in window) {
+      (window as any).deferredPrompt.prompt();
+    }
+  };
+
+  const dismissInstallPopup = () => {
+    setShowInstallPopup(false);
+  };
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-background">
@@ -56,6 +85,124 @@ export default function WeatherApp() {
       >
         <Menu className="w-5 h-5" />
       </button>
+
+      {/* ── Home menu button ── */}
+      <button
+        onClick={() => setShowHomeMenu(!showHomeMenu)}
+        className="fixed top-3 right-3 z-40 w-10 h-10 bg-card/90 backdrop-blur border border-border rounded-lg flex items-center justify-center shadow-lg text-foreground hover:bg-accent/20 transition-colors"
+        aria-label="Menu Home"
+      >
+        <Home className="w-5 h-5" />
+      </button>
+
+      {/* ── Home menu dropdown ── */}
+      <AnimatePresence>
+        {showHomeMenu && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed top-14 right-3 z-50 bg-card/95 backdrop-blur-xl border border-border rounded-lg shadow-xl p-4 min-w-[200px]"
+          >
+            <div className="space-y-2">
+              <button
+                onClick={() => { setShowHomeMenu(false); setSidebarOpen(true); }}
+                className="w-full text-left px-3 py-2 rounded-md hover:bg-accent/20 transition-colors flex items-center gap-2"
+              >
+                <Menu className="w-4 h-4" />
+                Menu
+              </button>
+              <button
+                onClick={() => { setShowHomeMenu(false); window.location.reload(); }}
+                className="w-full text-left px-3 py-2 rounded-md hover:bg-accent/20 transition-colors flex items-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Splash Screen TFR RADAR ── */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[100] bg-[#0a0f1e] flex flex-col items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, type: "spring" }}
+              className="text-center"
+            >
+              <div className="text-6xl mb-4">🌀</div>
+              <h1 className="text-4xl font-bold text-white mb-2">TFR RADAR</h1>
+              <p className="text-blue-400 text-lg">The Final Radar · Sistema Meteo Avanzato</p>
+              
+              {/* Radar sweep animation */}
+              <motion.div
+                className="w-32 h-32 mx-auto mt-6"
+                style={{
+                  borderRadius: '50%',
+                  background: 'conic-gradient(from 0deg, transparent 0deg, rgba(34, 197, 94, 0.5) 180deg, transparent 360deg)',
+                  border: '2px solid rgba(34, 197, 94, 0.8)'
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Install Popup after 30s ── */}
+      <AnimatePresence>
+        {showInstallPopup && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-4 right-4 z-50 bg-card/95 backdrop-blur-xl border border-border rounded-lg shadow-2xl p-4 max-w-sm"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="font-bold text-foreground">📲 Installa App</h3>
+                <p className="text-xs text-muted-foreground">TFR Radar</p>
+              </div>
+              <button
+                onClick={dismissInstallPopup}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <ul className="text-sm text-muted-foreground space-y-1 mb-3">
+              <li>• Radar meteo live</li>
+              <li>• Previsioni dettagliate</li>
+              <li>• Funziona offline</li>
+            </ul>
+            <div className="flex gap-2">
+              <button
+                onClick={handleInstall}
+                className="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Installa
+              </button>
+              <button
+                onClick={dismissInstallPopup}
+                className="px-3 py-2 rounded-md text-sm border border-border hover:bg-accent/20 transition-colors"
+              >
+                Non ora
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Map (full screen) ── */}
       <WeatherMap />

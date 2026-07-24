@@ -17,7 +17,7 @@ const QUICK_FLY = [
   { label: 'Mondo', center: [20, 0] as [number, number], zoom: 2 },
   { label: 'Europa', center: [54, 15] as [number, number], zoom: 4 },
   { label: 'Italia', center: [42, 12] as [number, number], zoom: 6 },
-  { label: 'Santa Teresa di Riva', center: [37.95, 15.37] as [number, number], zoom: 12 },
+  { label: 'S.Teresa', center: [37.95, 15.37] as [number, number], zoom: 12 },
 ];
 
 interface SidebarProps {

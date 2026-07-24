@@ -1,7 +1,7 @@
 {
-  "name": "The Final Radar",
-  "short_name": "Final Radar",
-  "description": "Radar meteo professionale con previsioni e temperature sulla mappa. Santa Teresa di Riva.",
+  "name": "TFR RADAR",
+  "short_name": "TFR",
+  "description": "TFR RADAR - radar meteo professionale con previsioni, temperature e vento. Santa Teresa di Riva.",
   "start_url": "/the_final_radar.html",
   "scope": "/",
   "display": "standalone",
