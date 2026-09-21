@@ -1,92 +1,36 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>TFR RADAR - The Final Radar</title>
-    <meta name="description" content="TFR RADAR - radar meteo professionale con previsioni, temperature e vento. Santa Teresa di Riva." />
-    <meta name="theme-color" content="#0a0f1e" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>The Final Radar</title>
+    <meta name="description" content="The Final Radar — radar meteo professionale con previsioni in italiano." />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="The Final Radar" />
+    <meta property="og:description" content="The Final Radar — radar meteo professionale con previsioni in italiano." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Final Radar" />
+    <meta name="twitter:description" content="The Final Radar — radar meteo professionale con previsioni in italiano." />
+    <link rel="icon" type="image/svg+xml" href="/radar/favicon.svg" />
+    <link rel="manifest" href="/radar/manifest.json" />
+    <link rel="apple-touch-icon" href="/radar/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="TFR RADAR" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <script type="module" crossorigin src="/assets/index-DJyirgw6.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BdyOLoPZ.css">
-    <style>
-      /* Install Popup */
-      #install-popup {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1000;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid #475569;
-        border-radius: 12px;
-        padding: 16px;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        max-width: 300px;
-        display: none;
-        animation: slideIn 0.3s ease-out;
-      }
-      @keyframes slideIn {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      #install-popup.visible {
-        display: block;
-      }
-    </style>
+    <meta name="apple-mobile-web-app-title" content="The Final Radar" />
+    <meta name="theme-color" content="#0a0f1e" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/radar/assets/index-CakJnYrw.js"></script>
+    <link rel="stylesheet" crossorigin href="/radar/assets/index-Q31KOdMX.css">
   </head>
   <body>
-    <!-- Install Popup -->
-    <div id="install-popup">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <div>
-          <h3 style="margin: 0; font-size: 16px;">📲 Installa App</h3>
-          <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">TFR Radar</p>
-        </div>
-        <button onclick="dismissInstallPopup()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;">×</button>
-      </div>
-      <ul style="font-size: 13px; color: #94a3b8; list-style: none; padding: 0; margin: 0 0 12px 0;">
-        <li>• Radar meteo live</li>
-        <li>• Previsioni dettagliate</li>
-        <li>• Funziona offline</li>
-      </ul>
-      <div style="display: flex; gap: 8px;">
-        <button onclick="installApp()" style="flex: 1; background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Installa</button>
-        <button onclick="dismissInstallPopup()" style="background: transparent; border: 1px solid #475569; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;">Non ora</button>
-      </div>
-    </div>
-
     <div id="root"></div>
-
     <script>
-      // Install popup after 30 seconds
-      setTimeout(() => {
-        document.getElementById('install-popup').classList.add('visible');
-      }, 30000);
-
-      function dismissInstallPopup() {
-        document.getElementById('install-popup').classList.remove('visible');
-      }
-
-      function installApp() {
-        if ('deferredPrompt' in window) {
-          window.deferredPrompt.prompt();
-        } else {
-          // Fallback for iOS
-          alert('Per installare: tocca Condividi → Aggiungi a Home');
-        }
-      }
-
-      // Register service worker for PWA
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/radar/sw.js').catch(() => {});
         });
       }
     </script>
