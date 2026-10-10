@@ -1,5 +1,5 @@
 // The Final Radar — Service Worker
-const CACHE = 'tfr-weather-v4';
+const CACHE = 'tfr-weather-v5';
 const SCOPE = self.registration.scope;
 const STATIC = [
   SCOPE,
